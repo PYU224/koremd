@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![KoreMD Logo](public/icon.png)
+<img src="public/icon.png" width="360">
 
 **Simple Markdown Editor supporting Moldova 🇲🇩**
 
