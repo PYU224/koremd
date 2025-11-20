@@ -159,20 +159,102 @@ function createNewFile() {
   router.push(`/editor/${file.id}`);
 }
 
+// ✅ 改善されたファイルインポート機能
 async function importFile() {
   const input = document.createElement('input');
   input.type = 'file';
-  input.accept = '.md,.markdown,.txt';
+  // より広範なファイル形式とMIMEタイプに対応
+  // Android/iOSでのファイル選択の互換性を向上
+  input.accept = '.md,.markdown,.txt,text/markdown,text/plain,text/x-markdown,application/octet-stream';
+  input.multiple = false;
+  
   input.onchange = async (e: Event) => {
     const target = e.target as HTMLInputElement;
     const file = target.files?.[0];
-    if (file) {
-      const content = await file.text();
-      const newFile = fileStore.importFile(file.name, content);
-      router.push(`/editor/${newFile.id}`);
+    if (!file) return;
+
+    try {
+      // ファイル名の検証
+      const fileName = file.name.toLowerCase();
+      const validExtensions = ['.md', '.markdown', '.txt'];
+      const hasValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
+      
+      if (!hasValidExtension) {
+        // サポートされていない拡張子の場合、確認ダイアログを表示
+        const alert = await alertController.create({
+          header: t('common.confirm'),
+          message: `このファイル形式（${file.name}）はサポートされていません。.md、.markdown、.txtファイルのみインポートできます。強制的にインポートしますか？`,
+          buttons: [
+            {
+              text: t('common.cancel'),
+              role: 'cancel',
+            },
+            {
+              text: '強制的にインポート',
+              role: 'confirm',
+              handler: async () => {
+                await processFileImport(file);
+              },
+            },
+          ],
+        });
+        await alert.present();
+      } else {
+        // 有効な拡張子の場合、直接インポート
+        await processFileImport(file);
+      }
+    } catch (error) {
+      console.error('Failed to import file:', error);
+      const alert = await alertController.create({
+        header: 'エラー / Error',
+        message: 'ファイルのインポートに失敗しました。テキストファイルであることを確認してください。\nFailed to import file. Please ensure it is a text file.',
+        buttons: ['OK'],
+      });
+      await alert.present();
     }
   };
+  
   input.click();
+}
+
+// ファイルインポート処理を別関数に分離
+async function processFileImport(file: File) {
+  try {
+    // ファイル内容を読み込む
+    const content = await file.text();
+    
+    // ファイル名を正規化
+    let fileName = file.name;
+    
+    // 拡張子がない場合や、.mdでない場合は.mdを追加
+    if (!fileName.toLowerCase().endsWith('.md') && 
+        !fileName.toLowerCase().endsWith('.markdown')) {
+      // 既存の拡張子を削除して.mdを追加
+      const lastDotIndex = fileName.lastIndexOf('.');
+      if (lastDotIndex > 0) {
+        fileName = fileName.substring(0, lastDotIndex) + '.md';
+      } else {
+        fileName = fileName + '.md';
+      }
+    }
+    
+    // ファイルストアにインポート
+    const newFile = fileStore.importFile(fileName, content);
+    
+    // 成功メッセージを表示
+    const alert = await alertController.create({
+      header: '成功 / Success',
+      message: `ファイル「${fileName}」をインポートしました。\nImported file "${fileName}".`,
+      buttons: ['OK'],
+    });
+    await alert.present();
+    
+    // エディターページに遷移
+    router.push(`/editor/${newFile.id}`);
+  } catch (error) {
+    console.error('Error processing file:', error);
+    throw error;
+  }
 }
 
 async function deleteFileConfirm(file: MarkdownFile) {

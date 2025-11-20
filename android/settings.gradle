@@ -1,3 +1,12 @@
+// settings.gradle
+plugins {
+    // foojay のツールチェーンレゾルバを使う
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.9.0'
+}
+
+rootProject.name = "koremd-app"
+
+// あなたのプロジェクトで必要な include や設定があればここに書く
 include ':app'
 include ':capacitor-cordova-android-plugins'
 project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins/')
