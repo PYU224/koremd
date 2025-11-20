@@ -1,20 +1,38 @@
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 
-// カスタムレンダラーでシンタックスハイライトを追加
+// marked v17対応: カスタムレンダラーでシンタックスハイライトを追加
 const renderer = new marked.Renderer();
-renderer.code = function({ text, lang }: { text: string; lang?: string; escaped?: boolean }) {
-  // ✅ text を使用（以前の code）
-  // ✅ lang を使用（以前の language）
+
+// ✅ marked v17の正しい型定義に対応
+renderer.code = function({ text, lang }: { text: string; lang?: string; escaped?: boolean }): string {
+  // text を使用（marked v17ではtextプロパティ）
+  // lang を使用（marked v17ではlangプロパティ）
   
   if (lang && hljs.getLanguage(lang)) {
-    const highlighted = hljs.highlight(text, { language: lang }).value;
-    return `<pre><code class="hljs language-${lang}">${highlighted}</code></pre>`;
+    try {
+      const highlighted = hljs.highlight(text, { language: lang }).value;
+      return `<pre><code class="hljs language-${lang}">${highlighted}</code></pre>`;
+    } catch (error) {
+      console.error('Highlight error:', error);
+    }
   }
   
-  const highlighted = hljs.highlightAuto(text).value;
-  return `<pre><code class="hljs">${highlighted}</code></pre>`;
+  try {
+    const highlighted = hljs.highlightAuto(text).value;
+    return `<pre><code class="hljs">${highlighted}</code></pre>`;
+  } catch (error) {
+    console.error('Highlight auto error:', error);
+    return `<pre><code>${text}</code></pre>`;
+  }
 };
+
+// marked設定
+marked.setOptions({
+  renderer: renderer,
+  gfm: true,
+  breaks: true
+});
 
 export function renderMarkdown(content: string): string {
   try {

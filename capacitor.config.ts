@@ -1,15 +1,25 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.pyu.koremd',
-  appName: 'これMD(マジ)?',
+  appId: 'cc.pyu224.koremd',
+  appName: 'KoreMD',
   webDir: 'dist',
   server: {
     androidScheme: 'https'
   },
   plugins: {
-    Filesystem: {
-      publicStorage: true
+    SplashScreen: {
+      launchShowDuration: 0,
+      launchAutoHide: false,
+      backgroundColor: '#0066cc',
+      androidSplashResourceName: 'splash',
+      androidScaleType: 'CENTER_CROP',
+      showSpinner: true,
+      androidSpinnerStyle: 'large',
+      iosSpinnerStyle: 'small',
+      spinnerColor: '#ffd700',
+      splashFullScreen: true,
+      splashImmersive: true
     }
   }
 };
