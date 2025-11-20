@@ -24,7 +24,7 @@
       </ion-toolbar>
     </ion-header>
 
-    <ion-content>
+    <ion-content class="ion-padding-bottom">
       <!-- ファイルが無い場合 -->
       <div v-if="filteredFiles.length === 0" class="empty-state">
         <ion-icon :icon="documentTextOutline" class="empty-icon" />
@@ -32,7 +32,7 @@
       </div>
 
       <!-- リスト表示 -->
-      <ion-list v-else-if="viewMode === 'list'">
+      <ion-list v-else-if="viewMode === 'list'" class="safe-list">
         <ion-item
           v-for="file in filteredFiles"
           :key="file.id"
@@ -55,7 +55,7 @@
       </ion-list>
 
       <!-- グリッド表示 -->
-      <div v-else class="grid-view">
+      <div v-else class="grid-view safe-grid">
         <div
           v-for="file in filteredFiles"
           :key="file.id"
@@ -80,16 +80,16 @@
         </div>
       </div>
 
-      <!-- FAB: 新規作成 + インポート -->
-      <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-        <ion-fab-button>
+      <!-- FAB: 新規作成 + インポート（ナビゲーションバー対応） -->
+      <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="safe-fab">
+        <ion-fab-button color="tertiary">
           <ion-icon :icon="addOutline" />
         </ion-fab-button>
         <ion-fab-list side="top">
-          <ion-fab-button @click="createNewFile" color="primary">
+          <ion-fab-button @click="createNewFile" color="primary" class="sub-fab">
             <ion-icon :icon="createOutline" />
           </ion-fab-button>
-          <ion-fab-button @click="importFile" color="secondary">
+          <ion-fab-button @click="importFile" color="secondary" class="sub-fab">
             <ion-icon :icon="downloadOutline" />
           </ion-fab-button>
         </ion-fab-list>
@@ -204,6 +204,11 @@ function formatDate(timestamp: number): string {
 </script>
 
 <style scoped>
+/* Androidナビゲーションバー対応 */
+.ion-padding-bottom {
+  --padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -211,6 +216,7 @@ function formatDate(timestamp: number): string {
   justify-content: center;
   height: 100%;
   color: var(--ion-color-medium);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .empty-icon {
@@ -218,11 +224,18 @@ function formatDate(timestamp: number): string {
   margin-bottom: 16px;
 }
 
-.grid-view {
+/* リスト表示 - ナビゲーションバー対応 */
+.safe-list {
+  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+}
+
+/* グリッド表示 - ナビゲーションバー対応 */
+.safe-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 16px;
   padding: 16px;
+  padding-bottom: calc(100px + env(safe-area-inset-bottom));
 }
 
 .grid-item {
@@ -271,5 +284,39 @@ function formatDate(timestamp: number): string {
   position: absolute;
   top: 4px;
   right: 4px;
+}
+
+/* FABボタン - Androidナビゲーションバー対応 */
+.safe-fab {
+  /* Androidのナビゲーションバーの高さ分を確保 */
+  margin-bottom: calc(16px + env(safe-area-inset-bottom));
+  margin-right: 16px;
+}
+
+.safe-fab ion-fab-button {
+  --background: var(--ion-color-tertiary);
+  --background-hover: var(--ion-color-tertiary-shade);
+  --background-activated: var(--ion-color-tertiary-shade);
+  --color: #000000;
+  --box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+  width: 64px;
+  height: 64px;
+}
+
+.safe-fab ion-fab-button ion-icon {
+  font-size: 32px;
+  font-weight: bold;
+  color: #000000;
+}
+
+/* サブFABボタン */
+.sub-fab {
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  width: 48px;
+  height: 48px;
+}
+
+.sub-fab ion-icon {
+  font-size: 24px;
 }
 </style>

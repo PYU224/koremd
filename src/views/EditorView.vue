@@ -29,7 +29,7 @@
       </ion-toolbar>
     </ion-header>
 
-    <ion-content :fullscreen="true">
+    <ion-content :fullscreen="true" class="safe-content">
       <div class="editor-container">
         <!-- 編集モード -->
         <MarkdownEditor
@@ -50,13 +50,13 @@
         />
       </div>
 
-      <!-- Markdownツールバー（編集モード時のみ） -->
-      <div v-if="editorMode === 'edit'" class="toolbar-container">
+      <!-- Markdownツールバー（編集モード時のみ）- ナビゲーションバー対応 -->
+      <div v-if="editorMode === 'edit'" class="toolbar-container-safe">
         <MarkdownToolbar @insert="handleInsert" />
       </div>
 
-      <!-- プレビューモード時の文字数表示 -->
-      <div v-else class="word-count">
+      <!-- プレビューモード時の文字数表示 - ナビゲーションバー対応 -->
+      <div v-else class="word-count-safe">
         {{ t('editor.wordCount') }}: {{ wordCount }}
       </div>
 
@@ -82,9 +82,9 @@
         </ion-button>
       </div>
 
-      <!-- FAB: キーワード検索（青地に虫眼鏡） -->
-      <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="search-fab">
-        <ion-fab-button @click="openSearchModal" color="primary">
+      <!-- FAB: キーワード検索 - ナビゲーションバー対応 -->
+      <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="safe-search-fab">
+        <ion-fab-button @click="openSearchModal" color="tertiary">
           <ion-icon :icon="searchOutline" />
         </ion-fab-button>
       </ion-fab>
@@ -217,7 +217,7 @@ function handleInsert(button: MarkdownToolbarButton) {
   );
 }
 
-// キーワード検索モーダル（改善版：ボタンを統合）
+// キーワード検索モーダル
 async function openSearchModal() {
   const alert = await alertController.create({
     header: t('editor.search'),
@@ -235,7 +235,6 @@ async function openSearchModal() {
         role: 'cancel',
         cssClass: 'secondary',
         handler: () => {
-          // キャンセル時、既存の検索もクリア
           if (isSearching.value) {
             clearSearch();
           }
@@ -247,7 +246,6 @@ async function openSearchModal() {
           if (data.keyword) {
             performSearch(data.keyword);
           } else {
-            // キーワードが空の場合は検索をクリア
             clearSearch();
           }
         },
@@ -258,7 +256,6 @@ async function openSearchModal() {
   await alert.present();
 }
 
-// すべての検索結果を見つける
 function findAllMatches(keyword: string): number[] {
   const lowerContent = content.value.toLowerCase();
   const lowerKeyword = keyword.toLowerCase();
@@ -273,7 +270,6 @@ function findAllMatches(keyword: string): number[] {
   return matches;
 }
 
-// キーワード検索を実行
 function performSearch(keyword: string) {
   if (!keyword) {
     clearSearch();
@@ -283,21 +279,16 @@ function performSearch(keyword: string) {
   searchKeyword.value = keyword;
   isSearching.value = true;
   
-  // エディターモードに切り替え
   if (editorMode.value === 'preview') {
     editorMode.value = 'edit';
   }
 
-  // すべてのマッチを見つける
   const matches = findAllMatches(keyword);
   searchMatches.value = matches;
   currentMatchIndex.value = 0;
 
   if (matches.length > 0) {
-    // 最初のマッチにジャンプ
     jumpToMatch(0);
-    
-    // 検索結果を表示
     showSearchResult(matches.length);
   } else {
     showNoResults();
@@ -305,7 +296,6 @@ function performSearch(keyword: string) {
   }
 }
 
-// 指定したマッチにジャンプ
 function jumpToMatch(index: number) {
   if (searchMatches.value.length === 0) return;
   
@@ -318,22 +308,19 @@ function jumpToMatch(index: number) {
       textarea.focus();
       textarea.setSelectionRange(matchIndex, matchIndex + searchKeyword.value.length);
       
-      // スクロール位置を調整
-      const lineHeight = 24; // 概算の行の高さ
+      const lineHeight = 24;
       const lines = content.value.substring(0, matchIndex).split('\n').length;
       textarea.scrollTop = lines * lineHeight - textarea.clientHeight / 2;
     }
   }, 100);
 }
 
-// 次のマッチへ
 function nextMatch() {
   if (searchMatches.value.length === 0) return;
   const nextIndex = (currentMatchIndex.value + 1) % searchMatches.value.length;
   jumpToMatch(nextIndex);
 }
 
-// 前のマッチへ
 function previousMatch() {
   if (searchMatches.value.length === 0) return;
   const prevIndex = currentMatchIndex.value === 0 
@@ -342,7 +329,6 @@ function previousMatch() {
   jumpToMatch(prevIndex);
 }
 
-// 検索結果を表示
 async function showSearchResult(count: number) {
   const alert = await alertController.create({
     header: t('editor.searchResults'),
@@ -352,7 +338,6 @@ async function showSearchResult(count: number) {
   await alert.present();
 }
 
-// 検索結果がない場合
 async function showNoResults() {
   const alert = await alertController.create({
     header: t('editor.searchResults'),
@@ -362,7 +347,6 @@ async function showNoResults() {
   await alert.present();
 }
 
-// 検索をクリア
 function clearSearch() {
   searchKeyword.value = '';
   isSearching.value = false;
@@ -383,21 +367,29 @@ function clearSearch() {
   text-align: center;
 }
 
-.editor-container {
-  height: calc(100% - 50px);
+/* Androidナビゲーションバー対応 */
+.safe-content {
+  --padding-bottom: env(safe-area-inset-bottom);
 }
 
-.toolbar-container {
+.editor-container {
+  height: calc(100% - 50px - env(safe-area-inset-bottom));
+}
+
+/* ツールバー - ナビゲーションバー対応 */
+.toolbar-container-safe {
   position: fixed;
-  bottom: 0;
+  bottom: env(safe-area-inset-bottom);
   left: 0;
   right: 0;
   z-index: 10;
+  background: var(--ion-color-light);
 }
 
-.word-count {
+/* 文字数表示 - ナビゲーションバー対応 */
+.word-count-safe {
   position: fixed;
-  bottom: 0;
+  bottom: env(safe-area-inset-bottom);
   left: 0;
   right: 0;
   background: var(--ion-color-light);
@@ -409,21 +401,30 @@ function clearSearch() {
   z-index: 10;
 }
 
-/* 検索FABボタン - 青地に虫眼鏡 */
-.search-fab {
-  margin-bottom: 70px;
+/* 検索FAB - ナビゲーションバー対応 */
+.safe-search-fab {
+  /* ツールバーの高さ50px + ナビゲーションバー + 余白 */
+  margin-bottom: calc(70px + env(safe-area-inset-bottom));
+  margin-right: 16px;
 }
 
-.search-fab ion-fab-button {
-  --background: var(--ion-color-primary);
-  --background-activated: var(--ion-color-primary-shade);
+.safe-search-fab ion-fab-button {
+  --background: var(--ion-color-tertiary);
+  --background-hover: var(--ion-color-tertiary-shade);
+  --background-activated: var(--ion-color-tertiary-shade);
+  --color: #000000;
+  --box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+  width: 56px;
+  height: 56px;
 }
 
-.search-fab ion-icon {
-  font-size: 24px;
+.safe-search-fab ion-fab-button ion-icon {
+  font-size: 28px;
+  color: #000000;
+  font-weight: bold;
 }
 
-/* 検索結果ナビゲーション - 改善版 */
+/* 検索結果ナビゲーション */
 .search-navigation {
   position: fixed;
   top: 60px;
@@ -457,7 +458,6 @@ function clearSearch() {
   font-size: 20px;
 }
 
-/* 閉じるボタン - 目立つデザイン */
 .search-navigation .close-button {
   --background: #dc143c;
   --background-hover: #c21235;

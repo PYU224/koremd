@@ -31,7 +31,7 @@ defineEmits<Emits>();
 .markdown-toolbar {
   background: var(--ion-color-light);
   border-top: 1px solid var(--ion-border-color);
-  padding: 4px 0;
+  padding: 6px 0; /* 4px → 6px */
   width: 100%;
 }
 
@@ -39,7 +39,7 @@ defineEmits<Emits>();
   display: flex;
   overflow-x: auto;
   padding: 0 8px;
-  gap: 4px;
+  gap: 6px; /* 4px → 6px */
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -49,11 +49,12 @@ defineEmits<Emits>();
 }
 
 .toolbar-button {
-  --padding-start: 8px;
-  --padding-end: 8px;
+  --padding-start: 10px; /* 8px → 10px */
+  --padding-end: 10px; /* 8px → 10px */
   flex-shrink: 0;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px; /* 14px → 16px（大きく）*/
+  font-weight: 700; /* 600 → 700（太く）*/
   min-width: fit-content;
+  height: 36px; /* ボタンの高さも少し大きく */
 }
 </style>

@@ -40,6 +40,10 @@
 
 ![KoreMD?](sample.png)
 
+<br>
+
+![KoreMD?](sample2.png)
+
 ### Installation
 
 #### Mobile (iOS/Android)
@@ -125,6 +129,10 @@ This project is designed to support Moldovan people and Ukranian refugees there.
 ### スクリーンショット
 
 ![これマジ？](sample.png)
+
+<br>
+
+![これマジ？](sample2.png)
 
 ### インストール
 

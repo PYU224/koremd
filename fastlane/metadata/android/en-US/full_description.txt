@@ -1,0 +1,26 @@
+KoreMD is a simple, elegant Markdown editor built with Ionic and Vue 3. The name plays on multiple meanings:
+- Kore MD = "This is Markdown?"
+- MD also represents Moldova 🇲🇩 - this project supports Moldovan people and Ukrainian refugees there
+
+Features:
+• Simple & Clean Design - Minimal, distraction-free interface
+• Markdown Editor - Real-time editing with syntax toolbar
+• Live Preview - Switch between edit and preview modes
+• Cross-Platform - Works on iOS, Android, Web, and Desktop
+• Multi-language - Japanese and English support
+• Customizable - Adjust font size and family
+• Import/Export - Easy file management
+• Local Storage - Your data stays on your device
+• Moldova Support - Design inspired by Moldovan flag colors
+
+Supporting Moldova 🇲🇩
+This project is designed to support Moldovan people and Ukrainian refugees there. The app's design incorporates the colors of the Moldovan flag (blue, red, and yellow).
+
+Privacy & Security:
+• All files are stored locally on your device
+• No internet connection required
+• No data collection
+• No tracking
+• Open source and transparent
+
+Made with ❤️ by PYU224

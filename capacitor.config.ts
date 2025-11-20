@@ -20,7 +20,17 @@ const config: CapacitorConfig = {
       spinnerColor: '#ffd700',
       splashFullScreen: true,
       splashImmersive: true
+    },
+    StatusBar: {
+      style: 'Light', // ステータスバーのスタイル
+      backgroundColor: '#0066cc', // ステータスバーの背景色（青）
     }
+  },
+  // Androidのナビゲーションバーとステータスバーの設定
+  android: {
+    allowMixedContent: false,
+    captureInput: true,
+    webContentsDebuggingEnabled: false
   }
 };
 
