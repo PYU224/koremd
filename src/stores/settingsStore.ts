@@ -6,7 +6,7 @@ export const useSettingsStore = defineStore('settings', () => {
   const settings = ref<AppSettings>({
     language: 'ja',
     fontSize: 16,
-    fontFamily: 'system-ui',
+    fontFamily: "'Montserrat', 'Noto Sans JP', sans-serif",
     theme: 'light',
   });
 

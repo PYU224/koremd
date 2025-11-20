@@ -52,6 +52,7 @@ export default {
     light: 'Light',
     dark: 'Dark',
     about: 'About',
+    author: 'Author',
     version: 'Version',
     license: 'License',
     supportMoldova: 'Supporting Moldova 🇲🇩',

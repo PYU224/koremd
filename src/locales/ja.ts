@@ -1,6 +1,6 @@
 export default {
   app: {
-    name: 'これMD(マジ)?',
+    name: 'これＭＤ（マジ）？',
   },
   common: {
     save: '保存',
@@ -52,6 +52,7 @@ export default {
     light: 'ライト',
     dark: 'ダーク',
     about: 'アプリについて',
+    author: '開発',
     version: 'バージョン',
     license: 'ライセンス',
     supportMoldova: 'モルドバ🇲🇩を支援',

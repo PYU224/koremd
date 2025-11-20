@@ -10,6 +10,7 @@ import { onMounted } from 'vue';
 import { useFileStore } from '@/stores/fileStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useI18n } from 'vue-i18n';
+import { SplashScreen } from '@capacitor/splash-screen';
 
 const fileStore = useFileStore();
 const settingsStore = useSettingsStore();
@@ -22,6 +23,11 @@ onMounted(async () => {
 
   // ファイルの読み込み
   await fileStore.loadFiles();
+
+  // スプラッシュスクリーンを非表示
+  setTimeout(() => {
+    SplashScreen.hide();
+  }, 1000);
 });
 </script>
 
@@ -37,6 +43,8 @@ onMounted(async () => {
 @import '@ionic/vue/css/flex-utils.css';
 @import '@ionic/vue/css/display.css';
 @import 'highlight.js/styles/github.css';
+@import './assets/fonts.css';
+@import './assets/fonts.css';
 
 :root {
   --ion-color-primary: #0066cc;
@@ -62,7 +70,7 @@ onMounted(async () => {
 }
 
 * {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI',
     'Helvetica Neue', Arial, sans-serif;
 }
 </style>

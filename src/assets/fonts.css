@@ -1,0 +1,56 @@
+/* モルドバテーマフォント設定 */
+
+/* Google Fonts - Montserrat (モダンでクリーンなフォント) */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+
+/* Google Fonts - Roboto Mono (コード用) */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap');
+
+/* Google Fonts - Noto Sans JP (日本語サポート) */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+:root {
+  /* モルドバ国旗カラー */
+  --md-blue: #0066cc;
+  --md-red: #dc143c;
+  --md-yellow: #ffd700;
+  --md-bg-light: #87ceeb;
+  
+  /* フォントファミリー */
+  --font-primary: 'Montserrat', 'Noto Sans JP', sans-serif;
+  --font-mono: 'Roboto Mono', 'Consolas', monospace;
+  --font-japanese: 'Noto Sans JP', sans-serif;
+}
+
+/* アプリ全体のフォント */
+body {
+  font-family: var(--font-primary);
+}
+
+/* 日本語テキストの最適化 */
+:lang(ja) {
+  font-family: var(--font-japanese);
+}
+
+/* コードブロック用フォント */
+code, pre, .editor-textarea {
+  font-family: var(--font-mono);
+}
+
+/* タイトル・見出し用 */
+h1, h2, h3, h4, h5, h6,
+.app-title {
+  font-family: var(--font-primary);
+  font-weight: 700;
+}
+
+/* アプリロゴのスタイル */
+.app-logo {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 24px;
+  background: linear-gradient(135deg, var(--md-blue), var(--md-red), var(--md-yellow));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

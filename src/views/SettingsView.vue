@@ -61,15 +61,17 @@
             @ionChange="handleFontFamilyChange"
             interface="popover"
           >
-            <ion-select-option value="system-ui">System</ion-select-option>
-            <ion-select-option value="'Consolas', 'Monaco', monospace">
-              Monospace
+            <ion-select-option value="'Montserrat', 'Noto Sans JP', sans-serif">
+              Montserrat (推奨/Recommended)
             </ion-select-option>
-            <ion-select-option value="'Georgia', serif">
-              Serif
+            <ion-select-option value="'Noto Sans JP', sans-serif">
+              Noto Sans JP (日本語)
             </ion-select-option>
-            <ion-select-option value="'Arial', sans-serif">
-              Sans-serif
+            <ion-select-option value="'Roboto Mono', monospace">
+              Roboto Mono (Code)
+            </ion-select-option>
+            <ion-select-option value="system-ui">
+              System
             </ion-select-option>
           </ion-select>
         </ion-item>
@@ -79,11 +81,13 @@
           <ion-label>{{ t('settings.about') }}</ion-label>
         </ion-list-header>
         <ion-item>
+          <ion-icon :icon="informationCircleOutline" slot="start" color="primary" />
           <ion-label>
-            <h2>{{ t('app.name') }}</h2>
+            <h2>{{ t('app.name') }} 🇲🇩</h2>
+            <p>{{ t('settings.author') }}: PYU224</p>
             <p>{{ t('settings.version') }}: 1.0.0</p>
             <p>{{ t('settings.license') }}: MIT</p>
-            <p>{{ t('settings.supportMoldova') }}</p>
+            <p class="moldova-support">🇲🇩 {{ t('settings.supportMoldova') }}</p>
           </ion-label>
         </ion-item>
 
@@ -91,7 +95,7 @@
         <ion-item
           button
           detail
-          href="https://github.com"
+          href="https://github.com/PYU224/koremd"
           target="_blank"
         >
           <ion-icon :icon="logoGithub" slot="start" />
@@ -123,7 +127,7 @@ import {
   IonSelectOption,
   IonRange,
 } from '@ionic/vue';
-import { arrowBackOutline, logoGithub } from 'ionicons/icons';
+import { arrowBackOutline, logoGithub, informationCircleOutline } from 'ionicons/icons';
 import { useSettingsStore } from '@/stores/settingsStore';
 
 const router = useRouter();
@@ -163,5 +167,12 @@ function handleFontFamilyChange(event: CustomEvent) {
 ion-list-header {
   font-weight: 600;
   color: var(--ion-color-primary);
+}
+
+.moldova-support {
+  font-weight: 700;
+  /* color: var(--ion-color-tertiary); */
+  font-size: medium;
+  margin-top: 8px;
 }
 </style>
