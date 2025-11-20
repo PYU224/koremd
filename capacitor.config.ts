@@ -1,9 +1,17 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'koremd-app',
-  webDir: 'dist'
+  appId: 'com.pyu.koremd',
+  appName: 'これMD(マジ)?',
+  webDir: 'dist',
+  server: {
+    androidScheme: 'https'
+  },
+  plugins: {
+    Filesystem: {
+      publicStorage: true
+    }
+  }
 };
 
 export default config;
