@@ -30,6 +30,12 @@ export default {
     fileName: 'ファイル名',
     export: 'エクスポート',
     wordCount: '文字数',
+    search: 'キーワード検索',
+    searchPlaceholder: 'キーワードを入力...',
+    searchResults: '検索結果',
+    matchesFound: '件見つかりました',
+    noMatches: '見つかりませんでした',
+    clearSearch: '検索をクリア',
     toolbar: {
       heading: '見出し',
       bold: '太字',

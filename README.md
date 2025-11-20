@@ -1,4 +1,4 @@
-# これMD(マジ)? / KoreMD (Really)?
+# これＭＤ（マジ）？ / KoreMD (Really)?
 
 <div align="center">
 

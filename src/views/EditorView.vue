@@ -38,6 +38,7 @@
           v-model="content"
           :font-size="settings.fontSize"
           :font-family="settings.fontFamily"
+          :class="{ 'search-active': isSearching }"
         />
 
         <!-- プレビューモード -->
@@ -58,6 +59,29 @@
       <div v-else class="word-count">
         {{ t('editor.wordCount') }}: {{ wordCount }}
       </div>
+
+      <!-- 検索結果ナビゲーション（検索中のみ表示） -->
+      <div v-if="isSearching && searchMatches.length > 0" class="search-navigation">
+        <ion-button size="small" fill="clear" @click="previousMatch">
+          <ion-icon :icon="chevronUpOutline" slot="icon-only" />
+        </ion-button>
+        <span class="search-info">
+          {{ currentMatchIndex + 1 }} / {{ searchMatches.length }}
+        </span>
+        <ion-button size="small" fill="clear" @click="nextMatch">
+          <ion-icon :icon="chevronDownOutline" slot="icon-only" />
+        </ion-button>
+        <ion-button size="small" fill="clear" @click="clearSearch" color="danger">
+          <ion-icon :icon="closeOutline" slot="icon-only" />
+        </ion-button>
+      </div>
+
+      <!-- FAB: キーワード検索（青地に虫眼鏡） -->
+      <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="search-fab">
+        <ion-fab-button @click="openSearchModal" color="primary">
+          <ion-icon :icon="searchOutline" />
+        </ion-fab-button>
+      </ion-fab>
     </ion-content>
   </ion-page>
 </template>
@@ -75,12 +99,19 @@ import {
   IonButton,
   IonIcon,
   IonContent,
+  IonFab,
+  IonFabButton,
+  alertController,
 } from '@ionic/vue';
 import {
   arrowBackOutline,
   eyeOutline,
   createOutline,
   shareOutline,
+  searchOutline,
+  chevronUpOutline,
+  chevronDownOutline,
+  closeOutline,
 } from 'ionicons/icons';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import MarkdownPreview from '@/components/MarkdownPreview.vue';
@@ -100,6 +131,10 @@ const editorRef = ref<InstanceType<typeof MarkdownEditor>>();
 const editorMode = ref<EditorMode>('edit');
 const content = ref('');
 const fileName = ref('');
+const searchKeyword = ref('');
+const isSearching = ref(false);
+const searchMatches = ref<number[]>([]);
+const currentMatchIndex = ref(0);
 
 const settings = computed(() => settingsStore.settings);
 const wordCount = computed(() => getWordCount(content.value));
@@ -132,6 +167,11 @@ watch(content, () => {
   saveTimer = setTimeout(() => {
     saveCurrentFile();
   }, 1000);
+  
+  // 検索中の場合、検索結果を更新
+  if (isSearching.value && searchKeyword.value) {
+    findAllMatches(searchKeyword.value);
+  }
 });
 
 function toggleMode() {
@@ -169,6 +209,157 @@ function handleInsert(button: MarkdownToolbarButton) {
     button.insertAfter,
     button.placeholder
   );
+}
+
+// キーワード検索モーダル
+async function openSearchModal() {
+  const alert = await alertController.create({
+    header: t('editor.search'),
+    inputs: [
+      {
+        name: 'keyword',
+        type: 'text',
+        placeholder: t('editor.searchPlaceholder'),
+        value: searchKeyword.value,
+      },
+    ],
+    buttons: [
+      {
+        text: t('common.cancel'),
+        role: 'cancel',
+        cssClass: 'secondary',
+      },
+      {
+        text: t('editor.clearSearch'),
+        cssClass: 'secondary',
+        handler: () => {
+          clearSearch();
+        },
+      },
+      {
+        text: t('common.search'),
+        handler: (data) => {
+          if (data.keyword) {
+            performSearch(data.keyword);
+          }
+        },
+      },
+    ],
+  });
+
+  await alert.present();
+}
+
+// すべての検索結果を見つける
+function findAllMatches(keyword: string): number[] {
+  const lowerContent = content.value.toLowerCase();
+  const lowerKeyword = keyword.toLowerCase();
+  const matches: number[] = [];
+  
+  let index = lowerContent.indexOf(lowerKeyword);
+  while (index !== -1) {
+    matches.push(index);
+    index = lowerContent.indexOf(lowerKeyword, index + 1);
+  }
+  
+  return matches;
+}
+
+// キーワード検索を実行
+function performSearch(keyword: string) {
+  if (!keyword) {
+    clearSearch();
+    return;
+  }
+
+  searchKeyword.value = keyword;
+  isSearching.value = true;
+  
+  // エディターモードに切り替え
+  if (editorMode.value === 'preview') {
+    editorMode.value = 'edit';
+  }
+
+  // すべてのマッチを見つける
+  const matches = findAllMatches(keyword);
+  searchMatches.value = matches;
+  currentMatchIndex.value = 0;
+
+  if (matches.length > 0) {
+    // 最初のマッチにジャンプ
+    jumpToMatch(0);
+    
+    // 検索結果を表示
+    showSearchResult(matches.length);
+  } else {
+    showNoResults();
+    isSearching.value = false;
+  }
+}
+
+// 指定したマッチにジャンプ
+function jumpToMatch(index: number) {
+  if (searchMatches.value.length === 0) return;
+  
+  currentMatchIndex.value = index;
+  const matchIndex = searchMatches.value[index];
+  
+  setTimeout(() => {
+    const textarea = editorRef.value?.$el.querySelector('textarea');
+    if (textarea) {
+      textarea.focus();
+      textarea.setSelectionRange(matchIndex, matchIndex + searchKeyword.value.length);
+      
+      // スクロール位置を調整
+      const lineHeight = 24; // 概算の行の高さ
+      const lines = content.value.substring(0, matchIndex).split('\n').length;
+      textarea.scrollTop = lines * lineHeight - textarea.clientHeight / 2;
+    }
+  }, 100);
+}
+
+// 次のマッチへ
+function nextMatch() {
+  if (searchMatches.value.length === 0) return;
+  const nextIndex = (currentMatchIndex.value + 1) % searchMatches.value.length;
+  jumpToMatch(nextIndex);
+}
+
+// 前のマッチへ
+function previousMatch() {
+  if (searchMatches.value.length === 0) return;
+  const prevIndex = currentMatchIndex.value === 0 
+    ? searchMatches.value.length - 1 
+    : currentMatchIndex.value - 1;
+  jumpToMatch(prevIndex);
+}
+
+// 検索結果を表示
+async function showSearchResult(count: number) {
+  const alert = await alertController.create({
+    header: t('editor.searchResults'),
+    message: `${count} ${t('editor.matchesFound')}`,
+    buttons: [t('common.confirm')],
+  });
+  await alert.present();
+}
+
+// 検索結果がない場合
+async function showNoResults() {
+  const alert = await alertController.create({
+    header: t('editor.searchResults'),
+    message: t('editor.noMatches'),
+    buttons: [t('common.confirm')],
+  });
+  await alert.present();
+}
+
+// 検索をクリア
+function clearSearch() {
+  searchKeyword.value = '';
+  isSearching.value = false;
+  searchMatches.value = [];
+  currentMatchIndex.value = 0;
 }
 </script>
 
@@ -208,5 +399,58 @@ function handleInsert(button: MarkdownToolbarButton) {
   color: var(--ion-color-medium);
   border-top: 1px solid var(--ion-border-color);
   z-index: 10;
+}
+
+/* 検索FABボタン - 青地に虫眼鏡 */
+.search-fab {
+  margin-bottom: 70px;
+}
+
+.search-fab ion-fab-button {
+  --background: var(--ion-color-primary);
+  --background-activated: var(--ion-color-primary-shade);
+}
+
+.search-fab ion-icon {
+  font-size: 24px;
+}
+
+/* 検索結果ナビゲーション */
+.search-navigation {
+  position: fixed;
+  top: 60px;
+  right: 10px;
+  background: var(--ion-color-primary);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.search-info {
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 50px;
+  text-align: center;
+}
+
+.search-navigation ion-button {
+  --color: white;
+  margin: 0;
+}
+
+/* 検索中のテキスト選択のハイライト */
+.search-active :deep(textarea::selection) {
+  background-color: #ffd700;
+  color: #000;
+}
+
+.search-active :deep(textarea::-moz-selection) {
+  background-color: #ffd700;
+  color: #000;
 }
 </style>

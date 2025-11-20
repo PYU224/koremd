@@ -30,6 +30,12 @@ export default {
     fileName: 'File Name',
     export: 'Export',
     wordCount: 'Characters',
+    search: 'Keyword Search',
+    searchPlaceholder: 'Enter keyword...',
+    searchResults: 'Search Results',
+    matchesFound: 'matches found',
+    noMatches: 'No matches found',
+    clearSearch: 'Clear Search',
     toolbar: {
       heading: 'Heading',
       bold: 'Bold',
