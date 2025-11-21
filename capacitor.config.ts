@@ -29,7 +29,6 @@ const config: CapacitorConfig = {
   // Androidのナビゲーションバーとステータスバーの設定
   android: {
     allowMixedContent: false,
-    captureInput: true,
     webContentsDebuggingEnabled: false
   }
 };

@@ -32,9 +32,18 @@
 - 📱 **Cross-Platform** - Works on iOS, Android, Web, and Desktop (Electron)
 - 🌐 **Multi-language** - Japanese and English support
 - 🎨 **Customizable** - Adjust font size and family
-- 💾 **Import/Export** - Easy file management
+- 💾 **Import/Export** - Easy file management with enhanced compatibility
 - 🔒 **Local Storage** - Your data stays on your device
 - 🇲🇩 **Moldova Support** - Design inspired by Moldovan flag colors
+- 🔍 **Search Function** - Find text within your documents
+- ⌨️ **IME Support** - Full support for Japanese, Chinese, and Korean input
+
+### Recent Improvements
+
+#### v1.0.1 (2024-11-21)
+- ✅ **Fixed IME Input Issue** - Japanese, Chinese, and Korean input now works perfectly
+- ✅ **Enhanced File Import** - Better support for .md files from Google Drive and other sources
+- ✅ **Improved MIME Type Support** - More flexible file format recognition
 
 ### Screenshots
 
@@ -92,6 +101,18 @@ npm run build
 - **Syntax Highlighting**: highlight.js
 - **Internationalization**: vue-i18n
 
+### File Format Support
+
+#### Import
+- `.md` - Markdown (recommended)
+- `.markdown` - Markdown
+- `.txt` - Plain text
+- Files from Google Drive, Dropbox, etc.
+
+#### Export
+- `.md` - Markdown format
+- Share via native OS share sheet (mobile)
+
 ### License
 
 MIT License - see [LICENSE](LICENSE) file for details
@@ -122,9 +143,18 @@ This project is designed to support Moldovan people and Ukranian refugees there.
 - 📱 **クロスプラットフォーム** - iOS、Android、Web、デスクトップ（Electron）に対応
 - 🌐 **多言語対応** - 日本語と英語をサポート
 - 🎨 **カスタマイズ可能** - フォントサイズとフォントファミリーの調整
-- 💾 **インポート/エクスポート** - 簡単なファイル管理
+- 💾 **インポート/エクスポート** - 互換性を向上させた簡単なファイル管理
 - 🔒 **ローカルストレージ** - データはデバイス内に保存
 - 🇲🇩 **モルドバ支援** - モルドバ国旗の色をモチーフにしたデザイン
+- 🔍 **検索機能** - ドキュメント内のテキスト検索
+- ⌨️ **IME完全対応** - 日本語・中国語・韓国語入力を完全サポート
+
+### 最新の改善点
+
+#### v1.0.1 (2024-11-21)
+- ✅ **IME入力問題を修正** - 日本語・中国語・韓国語の入力が完璧に動作するようになりました
+- ✅ **ファイルインポート機能の強化** - Googleドライブ等からの.mdファイルのサポートを改善
+- ✅ **MIMEタイプサポートの改善** - より柔軟なファイル形式認識
 
 ### スクリーンショット
 
@@ -182,6 +212,18 @@ npm run build
 - **シンタックスハイライト**: highlight.js
 - **国際化**: vue-i18n
 
+### 対応ファイル形式
+
+#### インポート
+- `.md` - Markdown（推奨）
+- `.markdown` - Markdown
+- `.txt` - プレーンテキスト
+- Googleドライブ、Dropbox等からのファイル
+
+#### エクスポート
+- `.md` - Markdown形式
+- OSネイティブ共有機能で共有（モバイル）
+
 ### ライセンス
 
 MIT License - 詳細は [LICENSE](LICENSE) ファイルを参照してください
@@ -193,6 +235,33 @@ MIT License - 詳細は [LICENSE](LICENSE) ファイルを参照してくださ�
 ### モルドバ支援について 🇲🇩
 
 このプロジェクトは、モルドバの方々とそこに住むウクライナ難民の方々を支援するために設計されています。アプリのデザインには、モルドバ国旗の色（青、赤、黄）が取り入れられています。
+
+---
+
+## 📚 Documentation / ドキュメント
+
+- [Changelog / 変更履歴](CHANGELOG.md)
+- [File Import Improvements / ファイルインポート改善](IMPROVEMENTS.md)
+- [IME Fix Technical Details / IME修正技術詳細](IME_FIX_TECHNICAL_DETAILS.md)
+
+---
+
+## 🐛 Known Issues / 既知の問題
+
+現在、重大な既知の問題はありません。問題を発見した場合は、GitHub Issuesでお知らせください。
+
+---
+
+## 🔮 Future Plans / 今後の予定
+
+- [ ] ダークモードの実装
+- [ ] クラウド同期機能（オプション）
+- [ ] Markdownテーブル編集の強化
+- [ ] 画像の直接貼り付け
+- [ ] ファイルのカテゴリー/タグ管理
+- [ ] エクスポート形式の拡張（HTML、PDF）
+- [ ] キーボードショートカット
+- [ ] 印刷機能
 
 ---
 

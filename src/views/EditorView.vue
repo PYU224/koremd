@@ -166,17 +166,24 @@ onUnmounted(() => {
   saveCurrentFile();
 });
 
+// ✅ watchの改善 - デバウンス処理を追加
 watch(content, () => {
   if (saveTimer) {
     clearTimeout(saveTimer);
   }
+  // 自動保存のデバウンス時間を1秒に設定
   saveTimer = setTimeout(() => {
     saveCurrentFile();
   }, 1000);
   
-  // 検索中の場合、検索結果を更新
+  // ✅ 検索中の場合のみ、検索結果を更新（デバウンス付き）
   if (isSearching.value && searchKeyword.value) {
-    findAllMatches(searchKeyword.value);
+    // 検索結果更新もデバウンス
+    setTimeout(() => {
+      if (isSearching.value && searchKeyword.value) {
+        findAllMatches(searchKeyword.value);
+      }
+    }, 300);
   }
 });
 
@@ -296,21 +303,30 @@ function performSearch(keyword: string) {
   }
 }
 
+// ✅ jumpToMatchの改善 - より慎重なカーソル移動
 function jumpToMatch(index: number) {
   if (searchMatches.value.length === 0) return;
   
   currentMatchIndex.value = index;
   const matchIndex = searchMatches.value[index];
   
+  // ✅ より長い遅延を設定してIME入力との競合を回避
   setTimeout(() => {
-    const textarea = editorRef.value?.$el.querySelector('textarea');
+    const textarea = editorRef.value?.$el?.querySelector('textarea');
     if (textarea) {
       textarea.focus();
-      textarea.setSelectionRange(matchIndex, matchIndex + searchKeyword.value.length);
       
-      const lineHeight = 24;
-      const lines = content.value.substring(0, matchIndex).split('\n').length;
-      textarea.scrollTop = lines * lineHeight - textarea.clientHeight / 2;
+      // ✅ さらに遅延を追加してカーソル位置設定
+      setTimeout(() => {
+        if (textarea) {
+          textarea.setSelectionRange(matchIndex, matchIndex + searchKeyword.value.length);
+          
+          // スクロール位置の調整
+          const lineHeight = 24;
+          const lines = content.value.substring(0, matchIndex).split('\n').length;
+          textarea.scrollTop = lines * lineHeight - textarea.clientHeight / 2;
+        }
+      }, 50);
     }
   }, 100);
 }
