@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import {
@@ -142,11 +142,16 @@ const isSearching = ref(false);
 const searchMatches = ref<number[]>([]);
 const currentMatchIndex = ref(0);
 
+// ✅ 追加: 現在編集中のファイルIDを追跡
+const currentEditingFileId = ref<string>('');
+
 const settings = computed(() => settingsStore.settings);
 const wordCount = computed(() => getWordCount(content.value));
 
 // 自動保存用のタイマー
 let saveTimer: NodeJS.Timeout | null = null;
+// ✅ 追加: ページ離脱中フラグ
+let isNavigating = false;
 
 onMounted(() => {
   const fileId = route.params.id as string;
@@ -155,25 +160,57 @@ onMounted(() => {
     if (fileStore.currentFile) {
       content.value = fileStore.currentFile.content;
       fileName.value = fileStore.currentFile.name;
+      currentEditingFileId.value = fileStore.currentFile.id; // ✅ 追加
+      console.log('Loaded file:', currentEditingFileId.value);
     }
   }
 });
 
+// ✅ 追加: onBeforeUnmountで確実に保存
+onBeforeUnmount(() => {
+  console.log('EditorView: onBeforeUnmount');
+  isNavigating = true; // ✅ ナビゲーション開始フラグ
+  
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+  
+  // 最後の保存を実行
+  saveCurrentFile();
+  
+  // ✅ currentFileをクリア
+  fileStore.clearCurrentFile();
+});
+
 onUnmounted(() => {
+  console.log('EditorView: onUnmounted');
   if (saveTimer) {
     clearTimeout(saveTimer);
   }
-  saveCurrentFile();
 });
 
-// ✅ watchの改善 - デバウンス処理を追加
+// ✅ 改善: watchの修正 - ファイルIDの整合性チェック
 watch(content, () => {
+  // ナビゲーション中は保存しない
+  if (isNavigating) {
+    return;
+  }
+  
+  // ✅ 現在編集中のファイルと一致しない場合は保存しない
+  if (fileStore.currentFile?.id !== currentEditingFileId.value) {
+    console.warn('File ID mismatch, skipping auto-save');
+    return;
+  }
+  
   if (saveTimer) {
     clearTimeout(saveTimer);
   }
   // 自動保存のデバウンス時間を1秒に設定
   saveTimer = setTimeout(() => {
-    saveCurrentFile();
+    if (!isNavigating) {
+      saveCurrentFile();
+    }
   }, 1000);
   
   // ✅ 検索中の場合のみ、検索結果を更新（デバウンス付き）
@@ -187,17 +224,49 @@ watch(content, () => {
   }
 });
 
+// ✅ 追加: ルートパラメータの変更を監視（別のファイルに遷移した場合）
+watch(() => route.params.id, (newId, oldId) => {
+  if (newId && newId !== oldId && newId !== currentEditingFileId.value) {
+    console.log('Route changed from', oldId, 'to', newId);
+    // 別のファイルに遷移した場合
+    isNavigating = true;
+    
+    // 現在のファイルを保存
+    if (saveTimer) {
+      clearTimeout(saveTimer);
+    }
+    saveCurrentFile();
+    
+    // 新しいファイルをロード
+    setTimeout(() => {
+      fileStore.selectFile(newId as string);
+      if (fileStore.currentFile) {
+        content.value = fileStore.currentFile.content;
+        fileName.value = fileStore.currentFile.name;
+        currentEditingFileId.value = fileStore.currentFile.id;
+        console.log('Switched to file:', currentEditingFileId.value);
+      }
+      isNavigating = false;
+    }, 100);
+  }
+});
+
 function toggleMode() {
   editorMode.value = editorMode.value === 'edit' ? 'preview' : 'edit';
 }
 
 function saveCurrentFile() {
-  if (fileStore.currentFile) {
+  // ✅ 改善: ファイルIDの整合性チェック
+  if (fileStore.currentFile && 
+      fileStore.currentFile.id === currentEditingFileId.value) {
+    console.log('Saving file:', currentEditingFileId.value);
     fileStore.updateFile(
       fileStore.currentFile.id,
       content.value,
       fileName.value
     );
+  } else {
+    console.warn('Cannot save: file ID mismatch or no current file');
   }
 }
 
@@ -206,8 +275,18 @@ function updateFileName() {
 }
 
 function goBack() {
+  console.log('goBack called');
+  isNavigating = true; // ✅ ナビゲーション開始
+  
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+  }
   saveCurrentFile();
-  router.push('/');
+  
+  // ✅ 少し遅延を入れてから遷移
+  setTimeout(() => {
+    router.push('/');
+  }, 100);
 }
 
 function exportCurrentFile() {

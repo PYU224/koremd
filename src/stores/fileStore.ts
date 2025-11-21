@@ -73,7 +73,7 @@ export const useFileStore = defineStore('files', () => {
       updatedAt: Date.now(),
     };
     files.value.unshift(newFile);
-    currentFile.value = newFile;
+    currentFile.value = { ...newFile }; // ✅ 深いコピーを作成
     saveFiles();
     return newFile;
   }
@@ -105,8 +105,19 @@ export const useFileStore = defineStore('files', () => {
   function selectFile(id: string) {
     const file = files.value.find(f => f.id === id);
     if (file) {
-      currentFile.value = file;
+      // ✅ 深いコピーを作成して参照の問題を回避
+      currentFile.value = { ...file };
+      console.log('Selected file:', currentFile.value.id);
+    } else {
+      currentFile.value = null;
+      console.warn('File not found:', id);
     }
+  }
+
+  // ✅ 追加: currentFileをクリアする関数
+  function clearCurrentFile() {
+    console.log('Clearing current file');
+    currentFile.value = null;
   }
 
   // ファイルのエクスポート
@@ -173,5 +184,6 @@ export const useFileStore = defineStore('files', () => {
     selectFile,
     exportFile,
     importFile,
+    clearCurrentFile, // ✅ 追加
   };
 });

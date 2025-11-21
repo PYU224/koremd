@@ -6,16 +6,21 @@
 
 <script setup lang="ts">
 import { IonApp, IonRouterOutlet } from '@ionic/vue';
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 import { useFileStore } from '@/stores/fileStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useI18n } from 'vue-i18n';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Capacitor } from '@capacitor/core';
+import { App as CapacitorApp } from '@capacitor/app';
+import { useRouter } from 'vue-router';
 
 const fileStore = useFileStore();
 const settingsStore = useSettingsStore();
 const { locale } = useI18n();
+const router = useRouter();
+
+let backButtonListener: any = null;
 
 onMounted(async () => {
   try {
@@ -33,6 +38,24 @@ onMounted(async () => {
     } catch (error) {
       console.error('Failed to load files:', error);
       // ファイル読み込み失敗は致命的ではないので続行
+    }
+
+    // Androidバックボタンのハンドリング
+    if (Capacitor.isNativePlatform()) {
+      backButtonListener = await CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+        console.log('Back button pressed, canGoBack:', canGoBack);
+        
+        // エディター画面にいる場合は、router.pushを使用してファイル一覧に戻る
+        if (router.currentRoute.value.name === 'Editor') {
+          router.push('/');
+        } else if (!canGoBack) {
+          // 履歴がない場合はアプリを終了
+          CapacitorApp.exitApp();
+        } else {
+          // それ以外は通常の戻る処理
+          window.history.back();
+        }
+      });
     }
 
     // スプラッシュスクリーンを非表示（ネイティブプラットフォームの場合のみ）
@@ -59,6 +82,13 @@ onMounted(async () => {
         console.error('Failed to hide splash screen after error:', e);
       }
     }
+  }
+});
+
+onUnmounted(() => {
+  // リスナーのクリーンアップ
+  if (backButtonListener) {
+    backButtonListener.remove();
   }
 });
 </script>
