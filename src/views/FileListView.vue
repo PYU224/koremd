@@ -327,6 +327,7 @@ function formatDate(timestamp: number): string {
   cursor: pointer;
   position: relative;
   transition: transform 0.2s;
+  min-height: 140px; /* 最小の高さを追加 */
 }
 
 .grid-item:hover {
@@ -350,10 +351,17 @@ function formatDate(timestamp: number): string {
   font-size: 14px;
   font-weight: 600;
   margin: 0;
+  width: 100%;
+  /* ✅ 複数行対応（2行まで表示） */
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 2行まで表示 */
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 100%;
+  word-wrap: break-word;
+  word-break: break-word; /* 長い単語も折り返す */
+  line-height: 1.4; /* 行間 */
+  max-height: calc(1.4em * 2); /* line-height × 行数 */
 }
 
 .grid-info p {

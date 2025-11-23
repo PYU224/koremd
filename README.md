@@ -38,13 +38,6 @@
 - 🔍 **Search Function** - Find text within your documents
 - ⌨️ **IME Support** - Full support for Japanese, Chinese, and Korean input
 
-### Recent Improvements
-
-#### v1.0.1 (2024-11-21)
-- ✅ **Fixed IME Input Issue** - Japanese, Chinese, and Korean input now works perfectly
-- ✅ **Enhanced File Import** - Better support for .md files from Google Drive and other sources
-- ✅ **Improved MIME Type Support** - More flexible file format recognition
-
 ### Screenshots
 
 ![KoreMD?](sample.png)
@@ -148,13 +141,6 @@ This project is designed to support Moldovan people and Ukranian refugees there.
 - 🇲🇩 **モルドバ支援** - モルドバ国旗の色をモチーフにしたデザイン
 - 🔍 **検索機能** - ドキュメント内のテキスト検索
 - ⌨️ **IME完全対応** - 日本語・中国語・韓国語入力を完全サポート
-
-### 最新の改善点
-
-#### v1.0.1 (2024-11-21)
-- ✅ **IME入力問題を修正** - 日本語・中国語・韓国語の入力が完璧に動作するようになりました
-- ✅ **ファイルインポート機能の強化** - Googleドライブ等からの.mdファイルのサポートを改善
-- ✅ **MIMEタイプサポートの改善** - より柔軟なファイル形式認識
 
 ### スクリーンショット
 

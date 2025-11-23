@@ -6,6 +6,55 @@ All notable changes to KoreMD (これＭＤ（マジ）？) will be documented i
 
 ---
 
+## [1.0.4] - 2025-11-23
+
+### 🎨 Improved / 改善
+
+#### グリッド表示でのファイル名表示の改善
+- **問題**: グリッド表示で長いファイル名が1行で切り詰められ、ファイル名全体を確認しにくい
+- **改善内容**:
+  - ファイル名を**2行まで**表示するように変更
+  - 2行を超える場合は自動的に「...」で省略
+  - 長い単語（ハイフンなし）も適切に折り返すように改善
+  - グリッドアイテムの最小高さを140pxに統一し、レイアウトの一貫性を向上
+
+**影響範囲**: `src/views/FileListView.vue`
+
+**技術的な詳細**:
+
+```css
+// Before (修正前)
+.grid-info h3 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;  // 1行のみ表示
+}
+
+// After (修正後)
+.grid-info h3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;  // 2行まで表示
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  word-break: break-word;  // 長い単語も折り返す
+  line-height: 1.4;
+  max-height: calc(1.4em * 2);
+}
+
+.grid-item {
+  min-height: 140px;  // 最小高さを追加
+}
+```
+
+**ユーザー体験の向上**:
+- ✅ 長いファイル名でも2行まで表示され、内容が把握しやすくなった
+- ✅ グリッドレイアウトがより整然とした見た目に
+- ✅ ファイル名の視認性が大幅に向上
+
+---
+
 ## [1.0.3] - 2025-11-22
 
 ### 🐛 Fixed / 修正
@@ -312,6 +361,6 @@ Made with ❤️ by PYU224
 
 Supporting Moldova 🇲🇩 | モルドバを支援 🇲🇩
 
-**Version 1.0.3 - Androidバックボタン問題完全解決！✅**
+**Version 1.0.4 - グリッド表示の改善！✨**
 
 </div>
