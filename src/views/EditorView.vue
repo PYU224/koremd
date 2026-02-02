@@ -88,7 +88,27 @@
           <ion-icon :icon="searchOutline" />
         </ion-fab-button>
       </ion-fab>
+
+      <!-- FAB: Nearby共有 - ナビゲーションバー対応 -->
+      <ion-fab slot="fixed" vertical="bottom" horizontal="start" class="safe-nearby-fab">
+        <ion-fab-button @click="showNearbyModal = true" color="success">
+          <ion-icon :icon="wifiOutline" />
+        </ion-fab-button>
+      </ion-fab>
     </ion-content>
+
+    <!-- Nearbyモーダル -->
+    <ion-modal 
+      :is-open="showNearbyModal" 
+      @didDismiss="showNearbyModal = false"
+      @didPresent="handleNearbyModalOpened"
+    >
+      <NearbyShare 
+        :markdown-content="nearbyContent" 
+        :key="nearbyModalKey"
+        @close="showNearbyModal = false"
+      />
+    </ion-modal>
   </ion-page>
 </template>
 
@@ -107,6 +127,7 @@ import {
   IonContent,
   IonFab,
   IonFabButton,
+  IonModal,
   alertController,
 } from '@ionic/vue';
 import {
@@ -118,10 +139,12 @@ import {
   chevronUpOutline,
   chevronDownOutline,
   closeOutline,
+  wifiOutline,
 } from 'ionicons/icons';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import MarkdownPreview from '@/components/MarkdownPreview.vue';
 import MarkdownToolbar from '@/components/MarkdownToolbar.vue';
+import NearbyShare from '@/components/NearbyShare.vue';
 import { useFileStore } from '@/stores/fileStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { getWordCount } from '@/utils/markdown';
@@ -135,8 +158,28 @@ const settingsStore = useSettingsStore();
 
 const editorRef = ref<InstanceType<typeof MarkdownEditor>>();
 const editorMode = ref<EditorMode>('edit');
+// 既存のコード
 const content = ref('');
 const fileName = ref('');
+const showNearbyModal = ref(false);
+
+// 以下を追加
+const nearbyContent = ref('');
+const nearbyModalKey = ref(0);
+
+// モーダル表示時にcontentをコピー
+const handleNearbyModalOpened = () => {
+  nearbyContent.value = content.value;
+  nearbyModalKey.value++;
+  
+  console.log('[EditorView] Nearby modal opened:', {
+    contentLength: content.value.length,
+    nearbyContentLength: nearbyContent.value.length,
+    fileName: fileName.value,
+    preview: content.value.substring(0, 100)
+  });
+};
+
 const searchKeyword = ref('');
 const isSearching = ref(false);
 const searchMatches = ref<number[]>([]);
@@ -149,7 +192,7 @@ const settings = computed(() => settingsStore.settings);
 const wordCount = computed(() => getWordCount(content.value));
 
 // 自動保存用のタイマー
-let saveTimer: NodeJS.Timeout | null = null;
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
 // ✅ 追加: ページ離脱中フラグ
 let isNavigating = false;
 
@@ -516,6 +559,28 @@ function clearSearch() {
 .safe-search-fab ion-fab-button ion-icon {
   font-size: 28px;
   color: #000000;
+  font-weight: bold;
+}
+
+/* Nearby FAB - ナビゲーションバー対応 */
+.safe-nearby-fab {
+  margin-bottom: calc(70px + env(safe-area-inset-bottom));
+  margin-left: 16px;
+}
+
+.safe-nearby-fab ion-fab-button {
+  --background: var(--ion-color-success);
+  --background-hover: var(--ion-color-success-shade);
+  --background-activated: var(--ion-color-success-shade);
+  --color: white;
+  --box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
+  width: 56px;
+  height: 56px;
+}
+
+.safe-nearby-fab ion-fab-button ion-icon {
+  font-size: 28px;
+  color: white;
   font-weight: bold;
 }
 

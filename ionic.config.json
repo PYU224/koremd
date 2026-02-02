@@ -1,7 +1,7 @@
 {
-  "name": "koremd-app",
+  "name": "KoreMD",
   "integrations": {
     "capacitor": {}
   },
-  "type": "vue-vite"
+  "type": "vue"
 }

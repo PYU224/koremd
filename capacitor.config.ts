@@ -1,7 +1,7 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'cc.pyu224.koremd',
+  appId: 'com.pyu.koremd',
   appName: 'KoreMD',
   webDir: 'dist',
   server: {
@@ -9,27 +9,18 @@ const config: CapacitorConfig = {
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 0,
-      launchAutoHide: false,
-      backgroundColor: '#0066cc',
-      androidSplashResourceName: 'splash',
-      androidScaleType: 'CENTER_CROP',
-      showSpinner: true,
-      androidSpinnerStyle: 'large',
-      iosSpinnerStyle: 'small',
-      spinnerColor: '#ffd700',
+      launchShowDuration: 2000,
+      launchAutoHide: true,
+      backgroundColor: "#ffffffff",
+      androidSplashResourceName: "splash",
+      androidScaleType: "CENTER_CROP",
+      showSpinner: false,
+      androidSpinnerStyle: "large",
+      iosSpinnerStyle: "small",
+      spinnerColor: "#999999",
       splashFullScreen: true,
       splashImmersive: true
-    },
-    StatusBar: {
-      style: 'Light', // ステータスバーのスタイル
-      backgroundColor: '#0066cc', // ステータスバーの背景色（青）
     }
-  },
-  // Androidのナビゲーションバーとステータスバーの設定
-  android: {
-    allowMixedContent: false,
-    webContentsDebuggingEnabled: false
   }
 };
 

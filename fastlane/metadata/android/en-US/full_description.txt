@@ -11,6 +11,7 @@ Features:
 • Customizable - Adjust font size and family
 • Import/Export - Easy file management
 • Local Storage - Your data stays on your device
+• Fast file transfer via Wi-Fi Direct (no internet required)
 • Moldova Support - Design inspired by Moldovan flag colors
 
 Supporting Moldova 🇲🇩

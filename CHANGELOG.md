@@ -6,6 +6,101 @@ All notable changes to KoreMD (これＭＤ（マジ）？) will be documented i
 
 ---
 
+## [1.1.2] - 2026-02-02
+
+### 🐛 Fixed / 修正
+
+#### Wi-Fi Direct共有機能の重複受信問題を修正
+- **問題**: 受信モードで「共有を開始」ボタンを連打すると、同じファイルが複数回受信される
+- **影響**: ユーザーが誤って連打した場合、不要なファイルが大量に作成される
+- **原因**: 
+  - `isSharing`フラグの設定タイミングが遅すぎた（非同期処理の後）
+  - 非同期処理（`WifiDirect.initialize()`、`WifiDirect.discoverPeers()`）の実行中に2回目のタップが処理され、重複実行が発生
+  - JavaScriptの非同期処理の特性により、1回目の処理が完了する前に2回目が開始されていた
+- **修正内容**:
+  - **useWifiDirectShare.ts**: `isSharing.value = true`をチェック直後に即座に設定するように変更
+  - **NearbyShare.vue**: 「共有を開始」ボタンに`:disabled="isSharing"`属性を追加し、UI レベルでも重複実行を防止
+  - **エラー時のリセット**: エラー発生時に`isSharing.value = false`に戻す処理を追加
+  - **3層防御システム**:
+    1. UIレベル: ボタンの`:disabled="isSharing"`属性
+    2. コンポーネントレベル: `handleStart`内の重複チェック
+    3. Composableレベル: `startSharing`内の重複チェック + 即座のフラグ設定
+
+**影響範囲**: `src/views/NearbyShare.vue`, `src/composables/useWifiDirectShare.ts`
+
+**技術的な詳細**:
+
+```typescript
+// Before (問題のあるコード)
+async function startSharing(mode: 'send' | 'receive') {
+  if (isSharing.value) return false;
+  
+  // ... 初期化処理
+  await WifiDirect.initialize();    // 非同期処理
+  await WifiDirect.discoverPeers(); // 非同期処理
+  
+  isSharing.value = true;  // ← 遅すぎるッピ！❌
+  return true;
+}
+
+// After (修正後のコード)
+async function startSharing(mode: 'send' | 'receive') {
+  if (isSharing.value) return false;
+  
+  // ✅ CRITICAL: 即座にtrueに設定
+  isSharing.value = true;
+  
+  // ... 初期化処理
+  await WifiDirect.initialize();    // この時点で既にtrue ✅
+  await WifiDirect.discoverPeers();
+  
+  return true;
+}
+```
+
+**タイミング図**:
+
+```
+修正前:
+0ms   タップ1回目 → startSharing実行 → isSharing: false
+50ms  initialize()実行中...
+100ms タップ2回目 → startSharing実行 → isSharing: false ← まだfalse！❌
+      → 2つとも実行される
+
+修正後:
+0ms   タップ1回目 → startSharing実行 → isSharing: false
+1ms   isSharing = true ← 即座に設定！✅
+50ms  initialize()実行中...
+100ms タップ2回目 → startSharing実行 → isSharing: true ← 既にtrue！
+      → ブロックされる ✅
+```
+
+**テスト項目**:
+- ✅ 受信モードで「共有を開始」を素早く3回タップ
+- ✅ ファイルが1回だけ受信されることを確認
+- ✅ ボタンが即座に無効化されることを確認
+- ✅ 2回目以降のタップがブロックされることを確認
+
+### 🎨 Improved / 改善
+
+#### Wi-Fi Direct Autonomous Group Owner 機能を実装
+- **改善内容**:
+  - 受信モードで`createGroup()`を使用してAutonomous Group Ownerとして起動
+  - ネゴシエーションの不確実性を排除し、受信側が確実にGroup Ownerになるように改善
+  - 送信側と受信側の役割が確実に期待通りになるように改善
+
+**影響範囲**: `wifi-direct-plugin/src/definitions.ts`, `wifi-direct-plugin/src/web.ts`, `wifi-direct-plugin/android/.../WifiDirectPlugin.java`, `src/composables/useWifiDirectShare.ts`
+
+---
+
+## [1.1.1] - 2026-01-24
+
+- 送信/受信モード選択機能を追加
+- ファイル受信処理を改善（内容を直接イベントで渡す）
+- 初期化処理を改善（クリーンアップと待機時間）
+- エラーメッセージとログを改善
+- UI/UXを改善
+
 ## [1.0.4] - 2025-11-23
 
 ### 🎨 Improved / 改善

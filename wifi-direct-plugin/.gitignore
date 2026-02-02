@@ -1,0 +1,26 @@
+# Node
+node_modules/
+npm-debug.log
+
+# TypeScript
+dist/
+*.d.ts.map
+
+# Android
+android/build/
+android/.gradle/
+android/local.properties
+android/.idea/
+android/*.iml
+android/captures/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

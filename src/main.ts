@@ -5,6 +5,14 @@ import App from './App.vue';
 import router from './router';
 import i18n from './locales';
 
+// --- これを追加してください ---
+import { WifiDirect } from '@/plugins/wifi-direct';
+
+// これにより Capacitor が WifiDirect を保持します
+// （= ツリーシェイクされずに Android 側へ渡されるようになる）
+;(window as any).WifiDirect = WifiDirect;
+// --- 追加ここまで ---
+
 const app = createApp(App);
 const pinia = createPinia();
 

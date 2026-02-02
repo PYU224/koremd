@@ -1,14 +1,15 @@
-# これＭＤ（マジ）？ / KoreMD (Really)?
+# KoreMD / これＭＤ（マジ）？
 
 <div align="center">
 
 <img src="public/icon.png" width="360">
 
-**Simple Markdown Editor supporting Moldova 🇲🇩**
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/platform-Android-green.svg)](https://www.android.com/)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Ionic](https://img.shields.io/badge/Ionic-7-blue.svg)](https://ionicframework.com/)
-[![Vue](https://img.shields.io/badge/Vue-3-green.svg)](https://vuejs.org/)
+**A Markdown Editor with Wi-Fi Direct Sharing for Android**
+
+**Wi-Fi Direct機能を搭載したAndroid用Markdownエディタ**
 
 [English](#english) | [日本語](#japanese)
 
@@ -16,244 +17,303 @@
 
 ---
 
-## <a name="english"></a>🇬🇧 English
+## English
 
-### About
+### Overview
 
-**KoreMD** is a simple, elegant Markdown editor built with Ionic and Vue 3. The name plays on multiple meanings:
-- **Kore MD** = "This is Markdown?"
-- **MD** also represents **Moldova** 🇲🇩 - this project supports Moldovan people and Ukranian refugees there
+KoreMD is a Markdown editor for Android that features Wi-Fi Direct file sharing capabilities. Edit Markdown files offline and share them directly with nearby devices without an internet connection.
 
-### Features
+### ✨ Features
 
-- ✨ **Simple & Clean Design** - Minimal, distraction-free interface
-- 📝 **Markdown Editor** - Real-time editing with syntax toolbar
-- 👁️ **Live Preview** - Switch between edit and preview modes
-- 📱 **Cross-Platform** - Works on iOS, Android, Web, and Desktop (Electron)
-- 🌐 **Multi-language** - Japanese and English support
-- 🎨 **Customizable** - Adjust font size and family
-- 💾 **Import/Export** - Easy file management with enhanced compatibility
-- 🔒 **Local Storage** - Your data stays on your device
-- 🇲🇩 **Moldova Support** - Design inspired by Moldovan flag colors
-- 🔍 **Search Function** - Find text within your documents
-- ⌨️ **IME Support** - Full support for Japanese, Chinese, and Korean input
+#### ✍️ Markdown Editing
+- Real-time preview
+- Syntax highlighting
+- Easy markup insertion with toolbar
+- Auto-save functionality
+- Keyword search
 
-### Screenshots
+#### 📡 Wi-Fi Direct Sharing
+- No internet connection required
+- High-speed transfer to nearby Android devices
+- 10-50x faster than Bluetooth
+- Supports large Markdown files
+- Autonomous Group Owner for reliable connections
 
-![KoreMD?](sample.png)
+#### 📁 File Management
+- Manage multiple Markdown files
+- Import/Export files
+- File sharing functionality
 
-<br>
+#### 🌍 Multi-language Support
+- Japanese
+- English
 
-![KoreMD?](sample2.png)
+### 🛠️ Tech Stack
 
-### Installation
-
-#### Mobile (iOS/Android)
-```bash
-# Install dependencies
-npm install
-
-# Run on iOS
-npm run ios
-
-# Run on Android
-npm run android
-```
-
-#### Desktop (Electron)
-```bash
-# Install dependencies
-npm install
-
-# Run Electron
-npm run electron
-
-# Build for distribution
-npm run electron:build
-```
-
-### Development
-
-```bash
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-```
-
-### Technology Stack
-
-- **Framework**: Ionic 7 + Vue 3
+- **Framework**: Vue 3 + Ionic Framework 8
+- **Build Tool**: Vite
+- **Mobile Framework**: Capacitor 8
 - **Language**: TypeScript
 - **State Management**: Pinia
-- **Markdown Parser**: marked
-- **Syntax Highlighting**: highlight.js
-- **Internationalization**: vue-i18n
+- **Markdown Processing**: marked + highlight.js
 
-### File Format Support
+### 📦 Installation
 
-#### Import
-- `.md` - Markdown (recommended)
-- `.markdown` - Markdown
-- `.txt` - Plain text
-- Files from Google Drive, Dropbox, etc.
+#### Prerequisites
 
-#### Export
-- `.md` - Markdown format
-- Share via native OS share sheet (mobile)
+- Node.js 18+
+- npm 9+
+- Android Studio (for Android development)
 
-### License
+#### Setup
 
-MIT License - see [LICENSE](LICENSE) file for details
+```bash
+# Install dependencies
+npm install
 
-### Contributing
+# Build Wi-Fi Direct plugin
+cd wifi-direct-plugin
+npm install
+npm run build
+cd ..
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+# Sync Capacitor
+npx cap sync android
+```
 
-### Supporting Moldova 🇲🇩
+### 🚀 Development
 
-This project is designed to support Moldovan people and Ukranian refugees there. The app's design incorporates the colors of the Moldovan flag (blue, red, and yellow).
+#### Start Development Server
+
+```bash
+npm run dev
+```
+
+#### Build
+
+```bash
+# Web build
+npm run build
+
+# Sync for Android build
+npx cap sync android
+
+# Open in Android Studio
+npx cap open android
+```
+
+### 📱 Using Wi-Fi Direct Sharing
+
+#### Basic Flow
+
+1. **Start sharing on both sender and receiver devices**
+   - Tap the Wi-Fi icon at the bottom left of the editor
+   - Tap "Start Sharing" in the modal
+
+2. **Device Discovery**
+   - Ensure both devices are nearby
+   - Wait for devices to appear in the list
+
+3. **Connection**
+   - Sender: Tap to select the target device
+   - Wait for connection to establish
+
+4. **File Transfer**
+   - Sender: Tap "Send Markdown"
+   - Receiver: File is automatically received and saved
+
+#### Important Notes
+
+- **Android Only**: Wi-Fi Direct is only available on Android devices
+- **Permissions Required**:
+  - Android 12 and below: Location permission
+  - Android 13 and above: Nearby Wi-Fi devices permission
+- **Wi-Fi Enabled**: Wi-Fi must be turned on
+- **Proximity**: Devices must be close to each other (typically within 10m)
+
+### 🔧 Troubleshooting
+
+#### Devices Not Detected
+
+1. Check if Wi-Fi is enabled on both devices
+2. Check if location services are enabled (Android 12 and below)
+3. Verify app permissions are granted
+4. Try "Stop Sharing" and start again
+
+#### Connection Fails
+
+1. Restart devices
+2. Turn Wi-Fi off and on again
+3. Restart the app
+
+### 📄 License
+
+MIT License
+
+### 👤 Author
+
+PYU
+
+### 🙏 Acknowledgments
+
+- [Ionic Framework](https://ionicframework.com/)
+- [Vue.js](https://vuejs.org/)
+- [Capacitor](https://capacitorjs.com/)
+- [marked](https://marked.js.org/)
+- [highlight.js](https://highlightjs.org/)
 
 ---
 
-## <a name="japanese"></a>🇯🇵 日本語
+## Japanese
 
 ### 概要
 
-**これＭＤ（マジ）？** は、Ionic と Vue 3 で構築されたシンプルで洗練されたMarkdownエディタです。アプリ名には複数の意味が込められています：
-- **これＭＤ（マジ）？** = 「これマジ（本当）？」+ 「Markdown」
-- **MD** は **モルドバ（Moldova）** 🇲🇩 も表しており、このプロジェクトはモルドバの方々とそこに住むウクライナ難民の方々を支援しています
+KoreMDは、Wi-Fi Direct機能を搭載したAndroid用のMarkdownエディタです。オフラインでMarkdownファイルを編集し、インターネット接続なしで近くのデバイスと直接共有できます。
 
-### 機能
+### ✨ 主な機能
 
-- ✨ **シンプルでクリーンなデザイン** - ミニマルで集中できるインターフェース
-- 📝 **Markdownエディタ** - 装飾文字ツールバー付きリアルタイム編集
-- 👁️ **ライブプレビュー** - 編集モードとプレビューモードの切り替え
-- 📱 **クロスプラットフォーム** - iOS、Android、Web、デスクトップ（Electron）に対応
-- 🌐 **多言語対応** - 日本語と英語をサポート
-- 🎨 **カスタマイズ可能** - フォントサイズとフォントファミリーの調整
-- 💾 **インポート/エクスポート** - 互換性を向上させた簡単なファイル管理
-- 🔒 **ローカルストレージ** - データはデバイス内に保存
-- 🇲🇩 **モルドバ支援** - モルドバ国旗の色をモチーフにしたデザイン
-- 🔍 **検索機能** - ドキュメント内のテキスト検索
-- ⌨️ **IME完全対応** - 日本語・中国語・韓国語入力を完全サポート
+#### ✍️ Markdown編集
+- リアルタイムプレビュー
+- シンタックスハイライト
+- ツールバーによる簡単な記法挿入
+- 自動保存機能
+- キーワード検索機能
 
-### スクリーンショット
+#### 📡 Wi-Fi Direct共有
+- インターネット接続不要
+- 近くのAndroidデバイスへ高速転送
+- Bluetoothの10〜50倍の転送速度
+- 大きなMarkdownファイルも転送可能
+- Autonomous Group Owner機能による確実な接続
 
-![これマジ？](sample.png)
+#### 📁 ファイル管理
+- 複数のMarkdownファイルを管理
+- ファイルのインポート/エクスポート
+- ファイル共有機能
 
-<br>
+#### 🌍 多言語対応
+- 日本語
+- 英語
 
-![これマジ？](sample2.png)
+### 🛠️ 技術スタック
 
-### インストール
-
-#### モバイル版（iOS/Android）
-```bash
-# 依存関係のインストール
-npm install
-
-# iOSで実行
-npm run ios
-
-# Androidで実行
-npm run android
-```
-
-#### デスクトップ版（Electron）
-```bash
-# 依存関係のインストール
-npm install
-
-# Electronで実行
-npm run electron
-
-# ビルド
-npm run electron:build
-```
-
-### 開発
-
-```bash
-# 依存関係のインストール
-npm install
-
-# 開発サーバーの起動
-npm run dev
-
-# プロダクションビルド
-npm run build
-```
-
-### 技術スタック
-
-- **フレームワーク**: Ionic 7 + Vue 3
+- **フレームワーク**: Vue 3 + Ionic Framework 8
+- **ビルドツール**: Vite
+- **モバイルフレームワーク**: Capacitor 8
 - **言語**: TypeScript
 - **状態管理**: Pinia
-- **Markdownパーサー**: marked
-- **シンタックスハイライト**: highlight.js
-- **国際化**: vue-i18n
+- **Markdown処理**: marked + highlight.js
 
-### 対応ファイル形式
+### 📦 インストール
 
-#### インポート
-- `.md` - Markdown（推奨）
-- `.markdown` - Markdown
-- `.txt` - プレーンテキスト
-- Googleドライブ、Dropbox等からのファイル
+#### 前提条件
 
-#### エクスポート
-- `.md` - Markdown形式
-- OSネイティブ共有機能で共有（モバイル）
+- Node.js 18以上
+- npm 9以上
+- Android Studio（Android開発用）
 
-### ライセンス
+#### セットアップ
 
-MIT License - 詳細は [LICENSE](LICENSE) ファイルを参照してください
+```bash
+# 依存関係をインストール
+npm install
 
-### コントリビューション
+# Wi-Fi Directプラグインをビルド
+cd wifi-direct-plugin
+npm install
+npm run build
+cd ..
 
-コントリビューションを歓迎します！お気軽にPull Requestを送ってください。
+# Capacitorを同期
+npx cap sync android
+```
 
-### モルドバ支援について 🇲🇩
+### 🚀 開発
 
-このプロジェクトは、モルドバの方々とそこに住むウクライナ難民の方々を支援するために設計されています。アプリのデザインには、モルドバ国旗の色（青、赤、黄）が取り入れられています。
+#### 開発サーバーの起動
 
----
+```bash
+npm run dev
+```
 
-## 📚 Documentation / ドキュメント
+#### ビルド
 
-- [Changelog / 変更履歴](CHANGELOG.md)
-- [File Import Improvements / ファイルインポート改善](IMPROVEMENTS.md)
-- [IME Fix Technical Details / IME修正技術詳細](IME_FIX_TECHNICAL_DETAILS.md)
+```bash
+# Webビルド
+npm run build
 
----
+# Androidビルド用に同期
+npx cap sync android
 
-## 🐛 Known Issues / 既知の問題
+# Android Studioを開く
+npx cap open android
+```
 
-現在、重大な既知の問題はありません。問題を発見した場合は、GitHub Issuesでお知らせください。
+### 📱 Wi-Fi Direct機能の使い方
 
----
+#### 基本的な流れ
 
-## 🔮 Future Plans / 今後の予定
+1. **送信側と受信側の両方で「共有を開始」をタップ**
+   - エディタ画面左下のWi-Fiアイコンをタップ
+   - モーダルで「共有を開始」をタップ
 
-- [ ] ダークモードの実装
-- [ ] クラウド同期機能（オプション）
-- [ ] Markdownテーブル編集の強化
-- [ ] 画像の直接貼り付け
-- [ ] ファイルのカテゴリー/タグ管理
-- [ ] エクスポート形式の拡張（HTML、PDF）
-- [ ] キーボードショートカット
-- [ ] 印刷機能
+2. **デバイスの検出**
+   - 両方のデバイスが近くにあることを確認
+   - デバイスリストに相手のデバイスが表示されるまで待機
+
+3. **接続**
+   - 送信側でデバイスを選択してタップ
+   - 接続が確立されるまで待機
+
+4. **ファイル転送**
+   - 送信側: 「Markdownを送信」をタップ
+   - 受信側: 自動的にファイルを受信・保存
+
+#### 注意事項
+
+- **Android専用機能**: Wi-Fi DirectはAndroidデバイスのみで利用可能
+- **権限が必要**:
+  - Android 12以下: 位置情報権限
+  - Android 13以上: 近くのWi-Fiデバイス権限
+- **Wi-Fi接続**: Wi-FiがONになっている必要があります
+- **近距離**: デバイス同士が近くにある必要があります（一般的に10m以内）
+
+### 🔧 トラブルシューティング
+
+#### デバイスが検出されない
+
+1. 両方のデバイスでWi-FiがONになっているか確認
+2. 位置情報サービスがONになっているか確認（Android 12以下）
+3. アプリに必要な権限が付与されているか確認
+4. 「共有を停止」してから再度「共有を開始」を試す
+
+#### 接続に失敗する
+
+1. デバイスを再起動
+2. Wi-Fiを一度OFFにしてから再度ONにする
+3. アプリを再起動
+
+### 📄 ライセンス
+
+MIT License
+
+### 👤 作者
+
+PYU
+
+### 🙏 謝辞
+
+- [Ionic Framework](https://ionicframework.com/)
+- [Vue.js](https://vuejs.org/)
+- [Capacitor](https://capacitorjs.com/)
+- [marked](https://marked.js.org/)
+- [highlight.js](https://highlightjs.org/)
 
 ---
 
 <div align="center">
 
-Made with ❤️ by PYU224
+**Made with ❤️ by PYU**
 
 Supporting Moldova 🇲🇩 | モルドバを支援 🇲🇩
 

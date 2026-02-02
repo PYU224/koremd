@@ -1,0 +1,37 @@
+{
+  "name": "@local/wifi-direct",
+  "version": "1.0.0",
+  "description": "Capacitor plugin for Android Wi-Fi Direct communication",
+  "main": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "capacitor": {
+    "android": {
+      "src": "android"
+    }
+  },
+  "files": [
+    "dist",
+    "android"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "keywords": [
+    "capacitor",
+    "plugin",
+    "wifi",
+    "direct",
+    "android"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "@capacitor/core": "^6.0.0"
+  }
+}
