@@ -6,6 +6,49 @@ All notable changes to KoreMD (これＭＤ（マジ）？) will be documented i
 
 ---
 
+## v1.1.4 (2026-02-04)
+
+### 🔒 Fixed / 修正
+
+#### Google Fontsへの外部接続を完全に排除
+- **問題**: アプリ起動時に`App.vue`から`/assets/fonts.css`を読み込んでしまい`fonts.googleapis.com`と`fonts.gstatic.com`へ接続していた
+- **原因**: `variables.css`に"Noto Sans JP"が指定されていたが、システムにフォントがない環境でフォールバック処理がGoogle Fontsに接続
+- **解決策**: npmパッケージ`@fontsource/noto-sans-jp`を使用してフォントを直接アプリに組み込み
+- **実装内容**:
+  - `package.json`に`@fontsource/noto-sans-jp`を追加
+  - `main.ts`でNoto Sans JP（400/700）をimport
+  - `fonts.css`から外部のフォントを読み込む処理があったのでファイルそのものを削除、`App.vue`からもimportの記述を削除
+  - フォントファイルがビルドに含まれ、外部接続が不要に
+- **効果**:
+  - ✅ Google Fontsへの接続ゼロ
+  - ✅ 完全オフライン動作
+  - ✅ プライバシー保護
+  - ✅ IzzyOnDroid/F-Droidの基準に準拠
+
+**影響範囲**: `package.json`, `src/main.ts`, `asset/fonts.css`（削除）, `App.vue`
+
+**APKサイズへの影響**: 約500KB増加（Noto Sans JP 2ウェイト）
+
+**技術的な詳細**:
+
+Fontsourceは、Google Fontsのフォントをnpmパッケージとして提供するサービスです。これにより：
+
+1. **ビルド時にバンドル**: フォントファイルがアプリのビルドに含まれる
+2. **外部接続不要**: すべてのリソースがローカルに存在
+3. **確実な利用**: ネットワーク状態やシステム環境に依存しない
+
+```typescript
+// main.ts で import
+import '@fontsource/noto-sans-jp/400.css';  // Regular
+import '@fontsource/noto-sans-jp/500.css';  // Regular
+import '@fontsource/noto-sans-jp/700.css';  // Bold
+```
+
+**IzzyOnDroidからのフィードバックへの対応**:
+PCAPdroid（https://github.com/emanuele-f/PCAPdroid）を使用したテストで、Google Fontsへの接続が検出されていた問題を完全に解決しました。
+
+---
+
 ## v1.1.3 (2026-02-04)
 
 ### 🌍 Improved / 改善

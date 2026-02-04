@@ -105,7 +105,6 @@ onUnmounted(() => {
 @import '@ionic/vue/css/flex-utils.css';
 @import '@ionic/vue/css/display.css';
 @import 'highlight.js/styles/github.css';
-@import './assets/fonts.css';
 
 :root {
   --ion-color-primary: #0066cc;

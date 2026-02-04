@@ -85,7 +85,7 @@
           <ion-label>
             <h2>{{ t('app.name') }} 🇲🇩</h2>
             <p>{{ t('settings.author') }}: PYU224</p>
-            <p>{{ t('settings.version') }}: 1.1.3</p>
+            <p>{{ t('settings.version') }}: 1.1.4</p>
             <p>{{ t('settings.license') }}: MIT</p>
             <p class="moldova-support">🇲🇩 {{ t('settings.supportMoldova') }}</p>
           </ion-label>
