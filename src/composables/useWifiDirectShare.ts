@@ -7,6 +7,7 @@ import type {
   WifiP2pDevice, 
 } from '@/plugins/wifi-direct/definitions';
 import { useDebugLogger } from '@/composables/useDebugLogger'; // ✅ 追加
+import { useI18n } from 'vue-i18n';
 
 interface ShareProgress {
   status: 'idle' | 'discovering' | 'connecting' | 'transferring' | 'complete' | 'error';
@@ -24,6 +25,8 @@ interface EventLog {
 }
 
 export function useWifiDirectShare() {
+  const { t } = useI18n(); // ✅ 追加
+  
   // ✅ デバッグロガーを初期化
   const debugLogger = useDebugLogger();
   
@@ -76,10 +79,10 @@ export function useWifiDirectShare() {
 
   // 権限アラートを表示
   async function showPermissionAlert() {
-    const alert = await alertController.create({
-      header: '権限が必要です',
-      message: 'Wi-Fi Directを使用するには、位置情報またはWi-Fi権限が必要です。設定から権限を許可してください。',
-      buttons: ['OK']
+    alertController.create({
+       header: t('nearbyShare.systemMessages.permissionRequired'),
+       message: t('nearbyShare.systemMessages.permissionMessage'),
+       buttons: ['OK']
     });
     await alert.present();
   }
@@ -94,7 +97,7 @@ export function useWifiDirectShare() {
       // 空配列の場合は既存のピアを保持
       if (data.peers && data.peers.length > 0) {
         peers.value = data.peers;
-        addLog('info', `デバイス発見: ${data.peers.length}台`, { peerCount: data.peers.length, peers: data.peers });
+        addLog('info', t('nearbyShare.systemMessages.devicesFound', { count: data.peers.length }), { peerCount: data.peers.length, peers: data.peers });
         console.log('✅ Peers found:', data.peers);
       } else {
         // 空配列の場合は無視（既存のピアを保持）
@@ -134,7 +137,8 @@ export function useWifiDirectShare() {
         
         if (expectedMode !== actualMode) {
           console.log(`⚠️ Role switched! Expected: ${expectedMode}, Actual: ${actualMode}`);
-          addLog('warning', `役割が自動調整されました: ${actualMode === 'send' ? '送信' : '受信'}モード`, {
+            const modeText = t(`nearbyShare.systemMessages.${actualMode}Mode`);
+            addLog('warning', t('nearbyShare.systemMessages.roleAdjusted', { mode: modeText }), {
             expected: expectedMode,
             actual: actualMode,
             isGroupOwner: data.isGroupOwner,
@@ -147,15 +151,16 @@ export function useWifiDirectShare() {
           // ✅ 修正: アラートの重複表示を防ぐ
           if (!hasShownRoleAlert) {
             hasShownRoleAlert = true;
-            const alert = await alertController.create({
-              header: '役割が自動調整されました',
-              message: `接続のネゴシエーション結果により、${actualMode === 'send' ? '送信' : '受信'}モードになりました。このまま続行できます。`,
+            const modeText = t(`nearbyShare.systemMessages.${actualMode}Mode`);
+            await alertController.create({
+              header: t('nearbyShare.systemMessages.roleAdjustedTitle'),
+              message: t('nearbyShare.systemMessages.roleAdjustedMessage', { mode: modeText }),
               buttons: ['OK']
             });
             await alert.present();
           }
         } else {
-          addLog('success', '接続が確立されました', {
+          addLog('success', t('nearbyShare.systemMessages.connectionEstablished'), {
             mode: actualMode,
             isGroupOwner: data.isGroupOwner,
             groupOwnerAddress: data.groupOwnerAddress
@@ -164,7 +169,7 @@ export function useWifiDirectShare() {
 
         progress.value = { 
           status: 'transferring', 
-          message: '接続が確立されました' 
+          message: t('nearbyShare.systemMessages.connectionEstablished') 
         };
 
         if (data.isGroupOwner) {
@@ -176,7 +181,7 @@ export function useWifiDirectShare() {
           }
           
           console.log('This device is Group Owner, starting file server');
-          addLog('info', '受信モードで待機中...');
+          addLog('info', t('nearbyShare.systemMessages.receivingMode'));
           
           // サーバー起動
           setTimeout(async () => {
@@ -186,7 +191,7 @@ export function useWifiDirectShare() {
         } else {
           // Client: 送信準備完了
           console.log('Connected as client to:', data.groupOwnerAddress);
-          addLog('success', `送信モードで接続: ${data.groupOwnerAddress}`);
+          addLog('success', t('nearbyShare.systemMessages.sendingMode', { address: data.groupOwnerAddress }));
           
           isProcessingConnection = false; // ✅ 処理完了
         }
@@ -200,10 +205,10 @@ export function useWifiDirectShare() {
         });
         await toast.present();
       } else {
-        addLog('warning', '接続が切断されました');
-        progress.value = { 
-          status: 'discovering', 
-          message: '接続が切断されました' 
+        addLog('warning', t('nearbyShare.systemMessages.connectionDisconnected'));
+        progress.value = {
+          status: 'idle',
+          message: t('nearbyShare.systemMessages.connectionDisconnected')
         };
         isProcessingConnection = false; // ✅ リセット
         hasShownRoleAlert = false; // ✅ リセット
@@ -216,7 +221,7 @@ export function useWifiDirectShare() {
       const percent = Math.round(data.progress * 100);
       progress.value = {
         status: 'transferring',
-        message: `転送中: ${percent}%`,
+        message: t('nearbyShare.systemMessages.transferring', { percent }),
         bytesTransferred: data.bytesTransferred,
         totalBytes: data.totalBytes,
         progress: data.progress
@@ -230,10 +235,10 @@ export function useWifiDirectShare() {
       console.log('File size:', data.bytesReceived);
       console.log('File content length:', data.fileContent?.length);
 
-      addLog('success', `ファイルを受信しました: ${data.fileName}`);
-      progress.value = { 
-        status: 'complete', 
-        message: 'ファイルを受信しました' 
+      addLog('success', t('nearbyShare.systemMessages.fileReceived', { fileName: data.fileName }));
+      progress.value = {
+        status: 'complete',
+        message: t('nearbyShare.systemMessages.fileReceived', { fileName: data.fileName })
       };
 
       try {
@@ -265,19 +270,21 @@ export function useWifiDirectShare() {
 
         console.log('File added to store:', displayName);
 
-        const alert = await alertController.create({
-          header: 'ファイルを受信しました',
-          message: `ファイル: ${data.fileName}\nサイズ: ${formatBytes(data.bytesReceived)}\n\nファイルリストに追加されました`,
+        await alertController.create({
+          header: t('nearbyShare.systemMessages.fileReceivedTitle'),
+          message: t('nearbyShare.systemMessages.fileReceivedMessage', { 
+            fileName: data.fileName, 
+            size: formatBytes(data.bytesReceived) 
+          }),
           buttons: ['OK']
         });
         await alert.present();
       } catch (err: any) {
         console.error('Failed to process received file:', err);
-        addLog('error', `ファイル処理失敗: ${err.message}`);
-        
-        const alert = await alertController.create({
-          header: 'エラー',
-          message: `ファイルの処理に失敗しました\n\nエラー: ${err.message}`,
+        addLog('error', t('nearbyShare.systemMessages.fileProcessingFailed', { error: err.message }));
+        await alertController.create({
+          header: t('nearbyShare.error'),
+          message: t('nearbyShare.systemMessages.fileProcessingFailed', { error: err.message }),
           buttons: ['OK']
         });
         await alert.present();
@@ -288,7 +295,7 @@ export function useWifiDirectShare() {
     // ファイル受信エラーイベント
     const errorListener = WifiDirect.addListener('fileReceiveError', (data) => {
       console.error('File receive error:', data.error);
-      addLog('error', `受信エラー: ${data.error}`);
+      addLog('error', t('nearbyShare.systemMessages.receiveError', { error: data.error }));
       error.value = `ファイルの受信に失敗: ${data.error}`;
       progress.value = { status: 'error', message: error.value };
     });
@@ -358,8 +365,8 @@ export function useWifiDirectShare() {
     }
 
     try {
-      addLog('info', 'Wi-Fi Directを初期化中...');
-      progress.value = { status: 'discovering', message: 'Wi-Fi Directを初期化中...' };
+      addLog('info', t('nearbyShare.systemMessages.initializing'));
+      progress.value = { status: 'discovering', message: t('nearbyShare.systemMessages.initializing') };
 
       // Wi-Fi Directを初期化
       await WifiDirect.initialize();
@@ -375,7 +382,7 @@ export function useWifiDirectShare() {
           // グループを作成（Group Ownerとして起動）
           // @ts-ignore - createGroup is added in updated plugin
           await WifiDirect.createGroup();
-          addLog('success', 'Group Ownerとして起動しました');
+          addLog('success', t('nearbyShare.systemMessages.groupOwnerStarted'));
           debugLogger.addLog('success', 'WiFiDirect', 'Autonomous GO created successfully');
           
         } catch (err: any) {
@@ -388,15 +395,15 @@ export function useWifiDirectShare() {
       }
 
       // ピア検索を開始
-      addLog('info', 'デバイスを検索中...');
+      addLog('info', t('nearbyShare.systemMessages.searchingDevices'));
       await WifiDirect.discoverPeers();
 
       // ✅ 削除: isSharing.value = true; (既にチェック直後に設定済み)
       // ✅ 削除: currentMode.value = mode; (既に最初に設定済み)
-      progress.value = { status: 'discovering', message: 'デバイスを検索中...' };
+    progress.value = { status: 'discovering', message: t('nearbyShare.systemMessages.searchingDevices') };
 
       const toast = await toastController.create({
-        message: '近くのデバイスを検索しています',
+        message: t('nearbyShare.systemMessages.searchingNearby'),
         duration: 2000,
         position: 'bottom'
       });
@@ -406,7 +413,7 @@ export function useWifiDirectShare() {
 
     } catch (err: any) {
       console.error('Failed to start sharing:', err);
-      addLog('error', `共有開始失敗: ${err.message}`);
+      addLog('error', t('nearbyShare.systemMessages.startFailed', { error: err.message }));
       error.value = err?.message || '共有の開始に失敗しました';
       progress.value = { status: 'error', message: error.value };
       
@@ -426,7 +433,7 @@ export function useWifiDirectShare() {
   // 共有を停止
   async function stopSharing(): Promise<void> {
     try {
-      addLog('info', '共有を停止しています...');
+      addLog('info', t('nearbyShare.systemMessages.stopping'));
       
       // リスナーを先に削除
       removeListeners();
@@ -470,10 +477,10 @@ export function useWifiDirectShare() {
       // 少し待機してから完了通知
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      addLog('success', '共有を停止しました');
+      addLog('success', t('nearbyShare.systemMessages.sharingStopped'));
 
       const toast = await toastController.create({
-        message: '共有を停止しました',
+        message: t('nearbyShare.systemMessages.sharingStopped'),
         duration: 2000,
         position: 'bottom'
       });
@@ -481,7 +488,7 @@ export function useWifiDirectShare() {
 
     } catch (err: any) {
       console.error('Failed to stop sharing:', err);
-      addLog('error', `停止失敗: ${err.message}`);
+      addLog('error', t('nearbyShare.systemMessages.stopFailed', { error: err.message }));
       error.value = err?.message || '共有の停止に失敗しました';
     }
   }
@@ -492,11 +499,11 @@ export function useWifiDirectShare() {
       // ✅ currentModeがnullの場合のフォールバック
       const mode = currentMode.value || 'send';
       
-      addLog('info', `デバイスに接続中: ${deviceAddress}`, { 
+      addLog('info', t('nearbyShare.systemMessages.connectingToDevice', { address: deviceAddress }), { 
         deviceAddress, 
         currentMode: mode
       });
-      progress.value = { status: 'connecting', message: '接続中...' };
+      progress.value = { status: 'connecting', message: t('nearbyShare.systemMessages.connecting') };
 
       // ✅ 修正: モードに応じた groupOwnerIntent を設定
       // 送信モード: 0 (Clientを希望) 
@@ -511,7 +518,8 @@ export function useWifiDirectShare() {
         groupOwnerIntent: intent
       });
       
-      addLog('info', `${mode === 'send' ? '送信' : '受信'}モードで接続します`, {
+      const modeText = t(`nearbyShare.systemMessages.${mode}Mode`);
+      addLog('info', t('nearbyShare.systemMessages.connectingInMode', { mode: modeText }), {
         groupOwnerIntent: intent
       });
       
@@ -521,7 +529,7 @@ export function useWifiDirectShare() {
       });
 
       const toast = await toastController.create({
-        message: '接続を開始しました',
+        message: t('nearbyShare.systemMessages.connectionStarted'),
         duration: 2000,
         position: 'bottom'
       });
@@ -529,7 +537,7 @@ export function useWifiDirectShare() {
 
     } catch (err: any) {
       console.error('Failed to connect to device:', err);
-      addLog('error', `接続失敗: ${err.message}`, { error: err });
+      addLog('error', t('nearbyShare.systemMessages.connectionFailed', { error: err.message }), { error: err });
       debugLogger.addLog('error', 'WiFiDirect', `Connection failed: ${err.message}`, { error: err });
       error.value = err?.message || 'デバイスへの接続に失敗しました';
     }
@@ -583,7 +591,7 @@ export function useWifiDirectShare() {
 
     } catch (err: any) {
       console.error('Failed to start receiving:', err);
-      addLog('error', `受信開始失敗: ${err.message}`);
+      addLog('error', t('nearbyShare.systemMessages.receiveStartFailed', { error: err.message }));
       error.value = err?.message || 'ファイル受信の開始に失敗しました';
       isServerStarting.value = false; // ✅ エラー時もフラグをリセット
     }
@@ -622,13 +630,13 @@ export function useWifiDirectShare() {
     }
 
     try {
-      addLog('info', 'ファイルを送信中...', { 
+      addLog('info', t('nearbyShare.systemMessages.sendingFile'), { 
         contentLength: content.length,
         destination: groupOwnerAddress.value 
       });
       progress.value = { 
         status: 'transferring', 
-        message: 'Markdownを送信しています...',
+        message: t('nearbyShare.systemMessages.sendingMarkdown'),
         progress: 0
       };
 
@@ -669,11 +677,11 @@ export function useWifiDirectShare() {
         port: 8988
       });
 
-      addLog('success', '送信に成功しました', { fileName });
+      addLog('success', t('nearbyShare.systemMessages.sendSuccess'), { fileName });
       debugLogger.addLog('info', 'WiFiDirect', 'File sent successfully', { fileName });
       progress.value = { 
         status: 'complete', 
-        message: '送信が完了しました',
+        message: t('nearbyShare.systemMessages.sendComplete'),
         progress: 1
       };
 
@@ -688,7 +696,7 @@ export function useWifiDirectShare() {
       }
 
       const toast = await toastController.create({
-        message: '送信が完了しました',
+        message: t('nearbyShare.systemMessages.sendComplete'),
         duration: 2000,
         position: 'bottom',
         color: 'success'
@@ -697,12 +705,12 @@ export function useWifiDirectShare() {
 
     } catch (err: any) {
       console.error('Failed to send markdown:', err);
-      addLog('error', `送信失敗: ${err.message}`);
+      addLog('error', t('nearbyShare.systemMessages.sendFailed', { error: err.message }));
       error.value = err?.message || 'Markdownの送信に失敗しました';
       progress.value = { status: 'error', message: error.value };
 
       const alert = await alertController.create({
-        header: 'エラー',
+        header: t('nearbyShare.error'),
         message: `File transfer failed: ${err.message}`,
         buttons: ['OK']
       });

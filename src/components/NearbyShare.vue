@@ -1,7 +1,7 @@
 <template>
   <ion-header>
     <ion-toolbar>
-      <ion-title>近くのデバイスと共有</ion-title>
+      <ion-title>{{ t('nearbyShare.title') }}</ion-title>
       <ion-buttons slot="end">
         <ion-button @click="$emit('close')">
           <ion-icon :icon="close"></ion-icon>
@@ -15,7 +15,7 @@
       <!-- 開始画面 -->
       <div v-if="!isSharing" class="start-screen">
         <ion-card-header>
-          <ion-card-title>共有モード選択</ion-card-title>
+          <ion-card-title>{{ t('nearbyShare.modeSelection') }}</ion-card-title>
         </ion-card-header>
         
         <ion-card-content>
@@ -23,18 +23,18 @@
           <div class="mode-selection">
             <ion-segment v-model="shareMode" value="send">
               <ion-segment-button value="send">
-                <ion-label>📤 送信</ion-label>
+                <ion-label>{{ t('nearbyShare.sendMode') }}</ion-label>
               </ion-segment-button>
               <ion-segment-button value="receive">
-                <ion-label>📥 受信</ion-label>
+                <ion-label>{{ t('nearbyShare.receiveMode') }}</ion-label>
               </ion-segment-button>
             </ion-segment>
           </div>
 
           <p class="description">
             {{ shareMode === 'send' ? 
-               'Markdownファイルを近くのデバイスに送信します' : 
-               'Markdownファイルを近くのデバイスから受信します' }}
+              t('nearbyShare.sendDescription') : 
+              t('nearbyShare.receiveDescription') }}
           </p>
           
           <ion-button 
@@ -44,11 +44,11 @@
             color="primary"
           >
             <ion-icon :icon="shareMode === 'send' ? send : download" slot="start"></ion-icon>
-            {{ isSharing ? '起動中...' : '共有を開始' }}
+            {{ isSharing ? t('nearbyShare.starting') : t('nearbyShare.startSharing') }}
           </ion-button>
 
           <ion-text v-if="shareMode === 'send' && !markdownContent" color="warning" class="warning-text">
-            <p><small>※送信するMarkdownコンテンツがありません</small></p>
+            <p><small>{{ t('nearbyShare.noContent') }}</small></p>
           </ion-text>
         </ion-card-content>
       </div>
@@ -57,9 +57,11 @@
       <div v-else class="sharing-screen">
         <ion-card-header>
           <ion-card-title>
-            {{ currentMode === 'send' ? '📤 送信モード' : '📥 受信モード' }}
+            {{ currentMode === 'send' ? t('nearbyShare.currentModeSend') : t('nearbyShare.currentModeReceive') }}
             <span v-if="shareMode !== currentMode" class="mode-override">
-              (自動調整: 元{{ shareMode === 'send' ? '送信' : '受信' }})
+              {{ t('nearbyShare.autoAdjusted', { 
+                mode: shareMode === 'send' ? t('nearbyShare.originalSend') : t('nearbyShare.originalReceive')
+              }) }}
             </span>
           </ion-card-title>
         </ion-card-header>
@@ -71,12 +73,12 @@
             <div v-if="!isGroupOwner" class="send-action-section">
               <ion-chip color="success" class="connection-status-chip">
                 <ion-icon :icon="cloudDownload"></ion-icon>
-                <ion-label>✅ 送信準備完了</ion-label>
+                <ion-label>✅ {{ t('nearbyShare.connectionComplete') }}</ion-label>
               </ion-chip>
 
               <p class="connection-ready-message">
-                <strong>接続先:</strong> {{ groupOwnerAddress }}<br>
-                <strong>送信可能:</strong> {{ markdownContent?.length || 0 }} 文字
+                <strong>{{ t('nearbyShare.ipAddress') }}:</strong> {{ groupOwnerAddress }}<br>
+                <strong>{{ t('nearbyShare.contentPreview', { length: markdownContent?.length || 0 }) }}</strong>
               </p>
 
               <ion-button
@@ -92,12 +94,12 @@
                 style="pointer-events: auto !important; touch-action: manipulation !important; z-index: 9999 !important; position: relative !important;"
               >
                 <ion-icon :icon="send" slot="start"></ion-icon>
-                <strong>{{ isConnected ? '📤 タップして送信' : '⏳ 接続中...' }}</strong>
+                <strong>{{ isConnected ? t('nearbyShare.tapToSend') : t('nearbyShare.connecting') }}</strong>
               </ion-button>
 
               <ion-text v-if="markdownContent" color="medium">
                 <p class="content-preview">
-                  <small>{{ markdownContent.length }} 文字のMarkdownを送信します</small>
+                  <small>{{ t('nearbyShare.contentPreview', { length: markdownContent.length }) }}</small>
                 </p>
               </ion-text>
             </div>
@@ -106,14 +108,14 @@
             <div v-if="isGroupOwner" class="waiting-section">
               <ion-chip color="success" class="connection-status-chip">
                 <ion-icon :icon="cloudUpload"></ion-icon>
-                <ion-label>✅ 受信待機中</ion-label>
+                <ion-label>{{ t('nearbyShare.receivingWaiting') }}</ion-label>
               </ion-chip>
               
               <div class="waiting-message">
                 <ion-icon :icon="cloudDownload" color="success" size="large"></ion-icon>
-                <p><strong>相手デバイスからの送信を待っています...</strong></p>
+                <p>{{ t('nearbyShare.waitingForConnection') }}</p>
                 <p class="connection-details">
-                  <small>接続先: {{ groupOwnerAddress }}</small>
+                  <small>{{ t('nearbyShare.connectTo') }}: {{ groupOwnerAddress }}</small>
                 </p>
               </div>
             </div>
@@ -123,7 +125,7 @@
           <div class="status-section">
             <ion-chip :color="getStatusColor()">
               <ion-icon :icon="getStatusIcon()"></ion-icon>
-              <ion-label>{{ progress.message || '待機中...' }}</ion-label>
+              <ion-label>{{ progress.message || t('nearbyShare.waitingMessage') }}</ion-label>
             </ion-chip>
           </div>
 
@@ -149,12 +151,12 @@
             class="stop-button"
           >
             <ion-icon :icon="stopCircle" slot="start"></ion-icon>
-            共有を停止
+            {{ t('nearbyShare.stopSharing') }}
           </ion-button>
 
           <!-- デバイスリスト -->
           <div v-if="!isConnected && peers.length > 0" class="devices-section">
-            <h3>利用可能なデバイス ({{ peers.length }})</h3>
+            <h3>{{ t('nearbyShare.availableDevices', { count: peers.length }) }}</h3>
             <ion-list>
               <ion-item 
                 v-for="peer in peers" 
@@ -169,7 +171,7 @@
                   <h2>{{ peer.deviceName }}</h2>
                   <p>{{ peer.deviceAddress }}</p>
                   <p v-if="peer.status !== 'available'" class="status-text">
-                    ステータス: {{ getStatusText(peer.status) }}
+                    {{ t('nearbyShare.status') }}: {{ getStatusText(peer.status) }}
                   </p>
                 </ion-label>
                 <ion-badge 
@@ -184,29 +186,29 @@
 
           <div v-else-if="!isConnected" class="no-devices">
             <ion-icon :icon="search" size="large" color="medium"></ion-icon>
-            <p>デバイスを検索中...</p>
+            <p>{{ t('nearbyShare.searching') }}</p>
           </div>
 
           <!-- エラー表示 -->
           <ion-card v-if="error" color="danger" class="error-card">
             <ion-card-content>
               <ion-icon :icon="alertCircle"></ion-icon>
-              <p><strong>エラー</strong></p>
+              <p><strong>{{ t('nearbyShare.error') }}</strong></p>
               <p>{{ error }}</p>
             </ion-card-content>
           </ion-card>
 
           <!-- 使い方 -->
           <div class="instructions">
-            <h4>💡 使い方:</h4>
+            <h4>{{ t('nearbyShare.howToUse') }}</h4>
             <ol>
-              <li>両方のデバイスで「共有を開始」をタップ</li>
-              <li>いずれかのデバイスで相手を選択して接続</li>
-              <li>接続後、Client側（送信側）に「Markdownを送信」ボタンが表示されます</li>
-              <li>送信ボタンをタップして送信完了</li>
+              <li>{{ t('nearbyShare.step1') }}</li>
+              <li>{{ t('nearbyShare.step2') }}</li>
+              <li>{{ t('nearbyShare.step3') }}</li>
+              <li>{{ t('nearbyShare.step4') }}</li>
             </ol>
             <p class="note">
-              <small>※ WiFi Directの仕様により、選択したモードと実際の役割が異なる場合があります。接続後に自動調整されます。</small>
+              <small>{{ t('nearbyShare.note') }}</small>
             </p>
           </div>
         </ion-card-content>
@@ -217,7 +219,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { alertController, toastController } from '@ionic/vue';
+import { useI18n } from 'vue-i18n';
+import { toastController } from '@ionic/vue';
 import {
   IonHeader,
   IonToolbar,
@@ -261,6 +264,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const { t } = useI18n();
 const emit = defineEmits<{
   close: [];
 }>();
@@ -275,7 +279,6 @@ const {
   peers,
   progress,
   error,
-  eventLog,
   currentMode,
   startSharing,
   connectToDevice,
@@ -318,8 +321,8 @@ watch(isConnected, async (newVal, oldVal) => {
       
       // トーストで通知
       const toast = await toastController.create({
-        header: '✅ 接続完了',
-        message: '送信ボタンをタップしてファイルを送信してください',
+        header: t('nearbyShare.connectionComplete'),
+        message: t('nearbyShare.connectionCompleteMessage'),
         duration: 5000,
         position: 'top',
         color: 'success',
@@ -346,7 +349,7 @@ watch(isConnected, async (newVal, oldVal) => {
       }
       
       const toast = await toastController.create({
-        message: '📥 相手からの送信を待っています...',
+        message: t('nearbyShare.waitingForSender'),
         duration: 3000,
         position: 'top',
         color: 'success'
@@ -493,15 +496,15 @@ const getStatusIcon = () => {
   }
 };
 
-const getStatusText = (status: string) => {
-  switch (status) {
-    case 'available': return '利用可能';
-    case 'connected': return '接続済み';
-    case 'invited': return '招待中';
-    case 'failed': return '失敗';
-    case 'unavailable': return '利用不可';
-    default: return status;
-  }
+const getDeviceStatus = (status: string) => {
+  const statusMap: Record<string, string> = {
+    'available': t('nearbyShare.deviceStatus.available'),
+    'connected': t('nearbyShare.deviceStatus.connected'),
+    'invited': t('nearbyShare.deviceStatus.invited'),
+    'failed': t('nearbyShare.deviceStatus.failed'),
+    'unavailable': t('nearbyShare.deviceStatus.unavailable'),
+  };
+  return statusMap[status] || status;
 };
 
 const getStatusBadgeColor = (status: string) => {

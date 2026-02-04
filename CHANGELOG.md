@@ -6,7 +6,69 @@ All notable changes to KoreMD (これＭＤ（マジ）？) will be documented i
 
 ---
 
-## [1.1.2] - 2026-02-02
+## v1.1.3 (2026-02-04)
+
+### 🌍 Improved / 改善
+
+#### Wi-Fi Direct共有画面の完全な英語対応
+- **改善内容**: すべてのテキストに英語翻訳を追加し、言語設定に応じて自動的に切り替わるようになりました
+- **対象画面**: Wi-Fi Direct共有機能のすべてのUI要素
+- **実装内容**:
+  - `src/locales/en.ts`に`nearbyShare`セクションを追加
+  - `src/locales/ja.ts`に`nearbyShare`セクションを追加
+  - ボタン、ラベル、メッセージ、説明文、デバイスステータスなど全要素を翻訳
+- **効果**: 英語圏のユーザーでも Wi-Fi Direct共有機能を問題なく使用可能
+
+**影響範囲**: `src/locales/en.ts`, `src/locales/ja.ts`
+
+**追加された翻訳**:
+- モード選択画面（送信/受信）
+- 接続情報
+- デバイスリスト
+- 使い方の説明
+- デバイスステータス（利用可能、接続済み、招待中など）
+- エラーメッセージ
+
+#### プライバシー改善: Google Fontsへの接続を完全に削除
+- **改善内容**: 外部サーバーへの接続を完全に削除し、システムフォントを使用するように変更
+- **削除したもの**: `fonts.googleapis.com`と`fonts.gstatic.com`への接続
+- **使用するフォント**:
+  - **Android**: Roboto, Noto Sans JP（システム標準）
+  - **iOS**: San Francisco（システム標準）
+  - **Windows**: Segoe UI（システム標準）
+  - **macOS**: San Francisco, Hiragino Sans（システム標準）
+- **メリット**:
+  - ✅ プライバシー保護（外部サーバーへの接続なし）
+  - ✅ オフライン環境で完全に動作
+  - ✅ フォント読み込み時間ゼロ
+  - ✅ OSネイティブの見た目で自然
+
+**影響範囲**: `index.html`, `src/theme/variables.css`
+
+**技術的な詳細**:
+
+```css
+/* システムフォントスタック */
+:root {
+  --ion-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
+                     "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+html[lang="ja"] {
+  --ion-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                     "Hiragino Sans", "Hiragino Kaku Gothic ProN", 
+                     "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif;
+}
+```
+
+**IzzyOnDroidからのフィードバックへの対応**:
+このリリースは、IzzyOnDroidからの以下のフィードバックに対応しています：
+1. 英訳が不完全（特にWi-Fi Direct共有画面）→ 完全な英語対応を実装
+2. Google Fontsへの接続 → システムフォントに変更して外部接続を削除
+
+---
+
+## v1.1.2 (2026-02-02)
 
 ### 🐛 Fixed / 修正
 
@@ -39,7 +101,7 @@ async function startSharing(mode: 'send' | 'receive') {
   await WifiDirect.initialize();    // 非同期処理
   await WifiDirect.discoverPeers(); // 非同期処理
   
-  isSharing.value = true;  // ← 遅すぎるッピ！❌
+  isSharing.value = true;  // ← 遅すぎる！❌
   return true;
 }
 
@@ -93,8 +155,7 @@ async function startSharing(mode: 'send' | 'receive') {
 
 ---
 
-## [1.1.1] - 2026-01-24
-
+## v1.1.1 (2026-01-24)
 - 送信/受信モード選択機能を追加
 - ファイル受信処理を改善（内容を直接イベントで渡す）
 - 初期化処理を改善（クリーンアップと待機時間）

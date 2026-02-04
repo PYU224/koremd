@@ -1,2 +1,18 @@
 /* For information on how to create your own theme, please refer to:
 http://ionicframework.com/docs/theming/ */
+/* システムフォントスタック */
+:root {
+  --ion-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
+                     "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+html[lang="ja"] {
+  --ion-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                     "Hiragino Sans", "Hiragino Kaku Gothic ProN", 
+                     "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif;
+}
+
+html[lang="en"] {
+  --ion-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                     "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
