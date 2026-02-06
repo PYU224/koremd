@@ -6,6 +6,16 @@ All notable changes to KoreMD (これＭＤ（マジ）？) will be documented i
 
 ---
 
+## v1.1.5 (2026-02-07)
+
+### 🔒 Fixed / 修正
+
+####
+- **問題**: APKのサイズが5MB→25MBに膨れ上がっていた
+- **解決策**: `AndroidManifest`の`application`内に`android:extractNativeLibs="true"`を追加
+
+---
+
 ## v1.1.4 (2026-02-04)
 
 ### 🔒 Fixed / 修正
@@ -45,7 +55,7 @@ import '@fontsource/noto-sans-jp/700.css';  // Bold
 ```
 
 **IzzyOnDroidからのフィードバックへの対応**:
-PCAPdroid（https://github.com/emanuele-f/PCAPdroid）を使用したテストで、Google Fontsへの接続が検出されていた問題を完全に解決しました。
+PCAPdroid（ https://github.com/emanuele-f/PCAPdroid ）を使用したテストで、Google Fontsへの接続が検出されていた問題を完全に解決しました。
 
 ---
 
