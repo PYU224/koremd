@@ -61,11 +61,8 @@
             @ionChange="handleFontFamilyChange"
             interface="popover"
           >
-            <ion-select-option value="'Montserrat', 'Noto Sans JP', sans-serif">
+            <ion-select-option value="'Montserrat', sans-serif">
               Montserrat (推奨/Recommended)
-            </ion-select-option>
-            <ion-select-option value="'Noto Sans JP', sans-serif">
-              Noto Sans JP (日本語)
             </ion-select-option>
             <ion-select-option value="'Roboto Mono', monospace">
               Roboto Mono (Code)
@@ -85,7 +82,7 @@
           <ion-label>
             <h2>{{ t('app.name') }} 🇲🇩</h2>
             <p>{{ t('settings.author') }}: PYU224</p>
-            <p>{{ t('settings.version') }}: 1.1.6</p>
+            <p>{{ t('settings.version') }}: 1.1.7</p>
             <p>{{ t('settings.license') }}: MIT</p>
             <p class="moldova-support">🇲🇩 {{ t('settings.supportMoldova') }}</p>
           </ion-label>

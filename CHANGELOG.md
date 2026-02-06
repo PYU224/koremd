@@ -6,7 +6,7 @@ All notable changes to KoreMD (これＭＤ（マジ）？) will be documented i
 
 ---
 
-## v1.1.6 (2026-02-07)
+## v1.1.7 (2026-02-07)
 
 ### 🔒 Fixed / 修正
 
