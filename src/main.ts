@@ -5,11 +5,6 @@ import App from './App.vue';
 import router from './router';
 import i18n from './locales';
 
-// Noto Sans JP フォントをインポート（オフラインで動作）
-import '@fontsource/noto-sans-jp/400.css';
-import '@fontsource/noto-sans-jp/500.css';  // Regular
-import '@fontsource/noto-sans-jp/700.css';  // Bold
-
 // --- これを追加してください ---
 import { WifiDirect } from '@/plugins/wifi-direct';
 

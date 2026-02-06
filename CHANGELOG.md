@@ -12,7 +12,7 @@ All notable changes to KoreMD (これＭＤ（マジ）？) will be documented i
 
 ####
 - **問題**: APKのサイズが5MB→25MBに膨れ上がっていた
-- **解決策**: `AndroidManifest`の`application`内に`android:extractNativeLibs="true"`を追加
+- **解決策**: `AndroidManifest`の`application`内に`android:extractNativeLibs="true"`を追加し、`@fontsource/noto-sans-jp`のフォントを削除
 
 ---
 
