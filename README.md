@@ -61,13 +61,19 @@ KoreMD is a Markdown editor for Android that features Wi-Fi Direct file sharing 
 
 #### Prerequisites
 
-- Node.js 18+
+- Node.js 18+ (Recommended 24.13.0+)
 - npm 9+
 - Android Studio (for Android development)
 
 #### Setup
 
 ```bash
+# Install Node
+wget -q -O /tmp/nodejs.tar.xz https://nodejs.org/dist/v24.13.0/node-v24.13.0-linux-x64.tar.xz
+sha256sum -c <<< 'e798599612f4bb71333a3397ab0d095fd62214e115aea45aa858a145fc72d67e  /tmp/nodejs.tar.xz'
+tar xf /tmp/nodejs.tar.xz -C /opt
+export PATH="${PATH}:/opt/node-v24.13.0-linux-x64/bin"
+
 # Install dependencies
 npm install
 
@@ -100,6 +106,11 @@ npx cap sync android
 
 # Open in Android Studio
 npx cap open android
+
+# Without Android Studio
+cd android
+./gradlew assembleRelease
+
 ```
 
 ### 📱 Using Wi-Fi Direct Sharing
