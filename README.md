@@ -110,7 +110,6 @@ npx cap open android
 # Without Android Studio
 cd android
 ./gradlew assembleRelease
-
 ```
 
 ### 📱 Using Wi-Fi Direct Sharing
@@ -219,13 +218,19 @@ KoreMDは、Wi-Fi Direct機能を搭載したAndroid用のMarkdownエディタ�
 
 #### 前提条件
 
-- Node.js 18以上
+- Node.js 18以上 （24.13.0以上推奨）
 - npm 9以上
 - Android Studio（Android開発用）
 
 #### セットアップ
 
 ```bash
+# Nodeをインストール
+wget -q -O /tmp/nodejs.tar.xz https://nodejs.org/dist/v24.13.0/node-v24.13.0-linux-x64.tar.xz
+sha256sum -c <<< 'e798599612f4bb71333a3397ab0d095fd62214e115aea45aa858a145fc72d67e  /tmp/nodejs.tar.xz'
+tar xf /tmp/nodejs.tar.xz -C /opt
+export PATH="${PATH}:/opt/node-v24.13.0-linux-x64/bin"
+
 # 依存関係をインストール
 npm install
 
@@ -258,6 +263,10 @@ npx cap sync android
 
 # Android Studioを開く
 npx cap open android
+
+# Android Studio無しの場合
+cd android
+./gradlew assembleRelease
 ```
 
 ### 📱 Wi-Fi Direct機能の使い方
