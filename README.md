@@ -83,7 +83,7 @@ npm install
 npm run build
 cd ..
 
-# Build web assets (重要!)
+# Build web assets
 npm run build
 
 # Sync Capacitor
@@ -243,7 +243,7 @@ npm install
 npm run build
 cd ..
 
-# Build web assets (重要!)
+# Build web assets
 npm run build
 
 # Sync Capacitor
