@@ -74,9 +74,6 @@ sha256sum -c <<< 'e798599612f4bb71333a3397ab0d095fd62214e115aea45aa858a145fc72d6
 tar xf /tmp/nodejs.tar.xz -C /opt
 export PATH="${PATH}:/opt/node-v24.13.0-linux-x64/bin"
 
-# Make dist
-mkdir dist
-
 # Install dependencies
 npm install
 
@@ -85,6 +82,9 @@ cd wifi-direct-plugin
 npm install
 npm run build
 cd ..
+
+# Build web assets (重要!)
+npm run build
 
 # Sync Capacitor
 npx cap sync android
@@ -228,25 +228,25 @@ KoreMDは、Wi-Fi Direct機能を搭載したAndroid用のMarkdownエディタ�
 #### セットアップ
 
 ```bash
-# Nodeをインストール
+# Install Node
 wget -q -O /tmp/nodejs.tar.xz https://nodejs.org/dist/v24.13.0/node-v24.13.0-linux-x64.tar.xz
 sha256sum -c <<< 'e798599612f4bb71333a3397ab0d095fd62214e115aea45aa858a145fc72d67e  /tmp/nodejs.tar.xz'
 tar xf /tmp/nodejs.tar.xz -C /opt
 export PATH="${PATH}:/opt/node-v24.13.0-linux-x64/bin"
 
-# distフォルダを作成
-mkdir dist
-
-# 依存関係をインストール
+# Install dependencies
 npm install
 
-# Wi-Fi Directプラグインをビルド
+# Build Wi-Fi Direct plugin
 cd wifi-direct-plugin
 npm install
 npm run build
 cd ..
 
-# Capacitorを同期
+# Build web assets (重要!)
+npm run build
+
+# Sync Capacitor
 npx cap sync android
 ```
 
