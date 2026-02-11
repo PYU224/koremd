@@ -29,5 +29,21 @@ coverage
 
 # Capacitor
 .capacitor
-android
+# /android/ (removed: android dir must be in repo for IzzyOnDroid builds)
 ios
+
+# Android - ignore build artifacts only (NOT the source directory itself)
+/android/.gradle/
+/android/build/
+/android/app/build/
+/android/app/release/
+/android/local.properties
+/android/.idea/
+/android/**/*.iml
+/android/captures/
+
+# wifi-direct-plugin android build artifacts
+/wifi-direct-plugin/android/.gradle/
+/wifi-direct-plugin/android/build/
+/wifi-direct-plugin/android/local.properties
+/wifi-direct-plugin/android/.idea/

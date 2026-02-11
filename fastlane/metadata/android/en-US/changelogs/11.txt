@@ -1,0 +1,15 @@
+Version 1.1.5
+
+🔒 Privacy improvements
+- Completely removed all connections to Google Fonts
+- Fonts are now bundled locally, ensuring fully offline operation
+
+🌍 Improvements
+- Wi-Fi Direct sharing screen is now fully translated into English
+- Improved multilingual support for international users
+
+🛠 Technical changes
+- Embedded Noto Sans JP using @fontsource
+- Improved compliance with IzzyOnDroid / F-Droid requirements
+
+This update focuses on privacy, transparency, and better international usability.

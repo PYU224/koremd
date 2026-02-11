@@ -1,6 +1,7 @@
 KoreMD is a simple, elegant Markdown editor built with Ionic and Vue 3.
 
 The name plays on multiple meanings:
+
 - "Kore MD" = "Is this Markdown?"
 - MD also represents Moldova 🇲🇩 — this project supports Moldovan people and Ukrainian refugees there.
 
