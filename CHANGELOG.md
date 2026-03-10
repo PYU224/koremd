@@ -6,6 +6,59 @@ All notable changes to KoreMD (これＭＤ（マジ）？) will be documented i
 
 ---
 
+## v1.1.8 (2026-03-10)
+
+### ✨ Improved / 改善
+
+#### ランタイム権限リクエストの実装
+- **問題**: アプリ起動時または送受信機能使用時に、位置情報・付近のデバイスの権限許可ダイアログが表示されていなかった
+- **原因**:
+  - `showPermissionAlert()`関数で `alertController.create()` の戻り値を `await` しておらず、`alert.present()` が未定義のオブジェクトに対して呼ばれていた
+  - `requestWifiDirectPermissions()` 関数が定義されていたが、`startSharing()` から呼ばれていなかった
+- **修正内容**:
+  - `permissions.ts` を書き直し、`@capacitor/geolocation` がある場合はそちら、ない場合は `navigator.geolocation` を fallback として使う2段階権限リクエストを実装
+  - `useWifiDirectShare.ts` の `startSharing()` 冒頭で権限リクエストを実行するように変更
+  - 権限が永久拒否された場合は設定アプリへの誘導メッセージを表示
+- **効果**:
+  - ✅ 送受信機能を初めて使ったタイミングでシステムダイアログが表示される
+  - ✅ 「位置情報」「付近のデバイス」の両権限をまとめてリクエスト
+  - ✅ 永久拒否済みの場合は設定画面への誘導メッセージを表示
+
+**影響範囲**: `src/utils/permissions.ts`, `src/composables/useWifiDirectShare.ts`
+
+#### 受信モードの安定性向上（discoverPeers 競合解消）
+- **問題**: 受信モード開始直後に `discoverPeers()` が「System is busy」エラーで失敗し、接続が切断される
+- **原因**: `createGroup()`（Autonomous Group Owner）成功直後に即座に `discoverPeers()` を呼んでいたため、前セッションの後処理イベントが大量に流れている間に競合が発生していた
+- **修正内容**:
+  - 受信モードでは `discoverPeers()` をスキップ（GO として待機するだけで不要）
+  - 送信モードでは「System is busy」エラー時に 1秒・2秒間隔で最大3回リトライ
+  - `initialize()` 後処理が完了するまで 800ms 待機を追加
+
+**影響範囲**: `src/composables/useWifiDirectShare.ts`
+
+#### デバッグログUIの削除
+- 開発用のログ表示パネルおよびエクスポートボタンを UI から削除
+- 内部ログ記録（`useDebugLogger`）は引き続き動作（将来の診断用）
+
+**影響範囲**: `src/components/NearbyShare.vue`
+
+### 🔒 Fixed / 修正
+
+#### FABボタンのスタイル修正
+- ファイル一覧の「＋」ボタンが金色・グロー表示になっていた問題を修正
+- `color="tertiary"` → `color="primary"` に変更し、不要な `box-shadow` CSS を削除
+
+**影響範囲**: `src/views/FileListView.vue`
+
+#### 「ファイルがありません」の表示位置を修正
+- 空のファイル一覧で「ファイルがありません」テキストが垂直中央ではなく上寄りに表示されていた問題を修正
+- `height: 100%` は `ion-content` 内では機能しないため `position: absolute` による中央揃えに変更
+
+**影響範囲**: `src/views/FileListView.vue`
+
+
+---
+
 ## v1.1.7 (2026-02-07)
 
 ### 🔒 Fixed / 修正
@@ -570,6 +623,6 @@ Made with ❤️ by PYU224
 
 Supporting Moldova 🇲🇩 | モルドバを支援 🇲🇩
 
-**Version 1.0.4 - グリッド表示の改善！✨**
+**Version 1.1.8 - 権限リクエスト対応・Wi-Fi Direct安定性向上 ✨**
 
 </div>

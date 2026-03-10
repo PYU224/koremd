@@ -48,7 +48,6 @@
     
     <!-- ========== Android 13+専用権限 ========== -->
     <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"
-        android:usesPermissionFlags="neverForLocation"
         tools:targetApi="tiramisu" />
     
     <!-- ========== ファイル転送用権限 ========== -->

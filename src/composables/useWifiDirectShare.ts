@@ -7,6 +7,7 @@ import type {
   WifiP2pDevice, 
 } from '@/plugins/wifi-direct/definitions';
 import { useDebugLogger } from '@/composables/useDebugLogger'; // ✅ 追加
+import { requestWifiDirectPermissions, getPermissionDeniedMessage } from '@/utils/permissions';
 import { useI18n } from 'vue-i18n';
 
 interface ShareProgress {
@@ -77,12 +78,12 @@ export function useWifiDirectShare() {
     return Capacitor.getPlatform() === 'android';
   }
 
-  // 権限アラートを表示
+  // 権限不足アラートを表示（設定画面への誘導）
   async function showPermissionAlert() {
-    alertController.create({
-       header: t('nearbyShare.systemMessages.permissionRequired'),
-       message: t('nearbyShare.systemMessages.permissionMessage'),
-       buttons: ['OK']
+    const alert = await alertController.create({
+      header: '権限が必要です',
+      message: getPermissionDeniedMessage(),
+      buttons: ['OK']
     });
     await alert.present();
   }
@@ -359,6 +360,15 @@ export function useWifiDirectShare() {
       note: mode === 'send' ? 'Will be Client (connect to others)' : 'Will be Group Owner (wait for connections)'
     });
 
+    // ✅ ランタイム権限をリクエスト（ダイアログ表示）
+    const hasPermission = await requestWifiDirectPermissions();
+    if (!hasPermission) {
+      await showPermissionAlert();
+      isSharing.value = false;
+      debugLogger.addLog('warning', 'WiFiDirect', 'Permission denied by user');
+      return false;
+    }
+
     if (!await checkAvailability()) {
       error.value = 'Wi-Fi Directは Android でのみ利用可能です';
       return false;
@@ -374,29 +384,47 @@ export function useWifiDirectShare() {
       // イベントリスナーをセットアップ
       setupListeners();
 
-      // ✅ NEW: 受信モードの場合、Autonomous Group Ownerとして起動
+      // ✅ 受信モード: Autonomous Group Owner として起動し、接続を待つ
       if (mode === 'receive') {
         debugLogger.addLog('info', 'WiFiDirect', 'Creating Autonomous Group Owner for receive mode');
         
         try {
-          // グループを作成（Group Ownerとして起動）
           // @ts-ignore - createGroup is added in updated plugin
           await WifiDirect.createGroup();
           addLog('success', t('nearbyShare.systemMessages.groupOwnerStarted'));
           debugLogger.addLog('success', 'WiFiDirect', 'Autonomous GO created successfully');
-          
         } catch (err: any) {
-          // エラーが発生した場合は通常のネゴシエーションにフォールバック
           console.warn('Failed to create Autonomous GO, falling back to negotiation:', err);
           debugLogger.addLog('warning', 'WiFiDirect', 'Autonomous GO failed, using negotiation', {
             error: err.message
           });
         }
-      }
 
-      // ピア検索を開始
-      addLog('info', t('nearbyShare.systemMessages.searchingDevices'));
-      await WifiDirect.discoverPeers();
+        // ✅ 受信モードでは discoverPeers は不要
+        // GOとして起動済みなので、相手デバイスが接続してくるのを待つだけ
+        // initialize()の後処理が終わるまで少し待機
+        await new Promise(resolve => setTimeout(resolve, 800));
+        debugLogger.addLog('info', 'WiFiDirect', 'Receive mode: waiting for incoming connections (discoverPeers skipped)');
+
+      } else {
+        // ✅ 送信モード: ピア検索（"System is busy" 対策でリトライあり）
+        addLog('info', t('nearbyShare.systemMessages.searchingDevices'));
+
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            await WifiDirect.discoverPeers();
+            debugLogger.addLog('info', 'WiFiDirect', `discoverPeers succeeded on attempt ${attempt}`);
+            break;
+          } catch (err: any) {
+            debugLogger.addLog('warning', 'WiFiDirect', `discoverPeers attempt ${attempt} failed`, { error: err.message });
+            if (attempt < 3) {
+              await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+            } else {
+              throw err;
+            }
+          }
+        }
+      }
 
       // ✅ 削除: isSharing.value = true; (既にチェック直後に設定済み)
       // ✅ 削除: currentMode.value = mode; (既に最初に設定済み)

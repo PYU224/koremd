@@ -138,19 +138,27 @@ cd android
 #### Important Notes
 
 - **Android Only**: Wi-Fi Direct is only available on Android devices
-- **Permissions Required**:
-  - Android 12 and below: Location permission
-  - Android 13 and above: Nearby Wi-Fi devices permission
+- **Permissions Required** (dialog shown automatically on first use):
+  - All versions: Location permission (`ACCESS_FINE_LOCATION`)
+  - Android 13 and above: Nearby Wi-Fi devices permission (`NEARBY_WIFI_DEVICES`)
+  - Both dialogs appear when you first tap "Start Sharing" 
 - **Wi-Fi Enabled**: Wi-Fi must be turned on
 - **Proximity**: Devices must be close to each other (typically within 10m)
 
 ### 🔧 Troubleshooting
 
+#### Permission Dialog Does Not Appear
+
+1. Go to Settings → Apps → KoreMD → Permissions
+2. Enable **Location** → select "While using the app"
+3. Enable **Nearby devices**
+4. Restart the sharing feature
+
 #### Devices Not Detected
 
 1. Check if Wi-Fi is enabled on both devices
-2. Check if location services are enabled (Android 12 and below)
-3. Verify app permissions are granted
+2. Check if location services are enabled
+3. Verify app permissions are granted (see above)
 4. Try "Stop Sharing" and start again
 
 #### Connection Fails
@@ -298,19 +306,27 @@ cd android
 #### 注意事項
 
 - **Android専用機能**: Wi-Fi DirectはAndroidデバイスのみで利用可能
-- **権限が必要**:
-  - Android 12以下: 位置情報権限
-  - Android 13以上: 近くのWi-Fiデバイス権限
+- **権限が必要**（初回使用時に自動でダイアログが表示されます）:
+  - 全バージョン: 位置情報権限（`ACCESS_FINE_LOCATION`）
+  - Android 13以上: 付近のデバイス権限（`NEARBY_WIFI_DEVICES`）
+  - 「共有を開始」を最初にタップしたときに両方のダイアログが表示されます
 - **Wi-Fi接続**: Wi-FiがONになっている必要があります
 - **近距離**: デバイス同士が近くにある必要があります（一般的に10m以内）
 
 ### 🔧 トラブルシューティング
 
+#### 権限ダイアログが表示されない
+
+1. 設定 → アプリ → これMD(マジ)? → 権限 を開く
+2. **位置情報** → 「アプリの使用中のみ許可」を選択
+3. **付近のデバイス** → 許可
+4. 共有機能を再起動
+
 #### デバイスが検出されない
 
 1. 両方のデバイスでWi-FiがONになっているか確認
-2. 位置情報サービスがONになっているか確認（Android 12以下）
-3. アプリに必要な権限が付与されているか確認
+2. 位置情報サービスがONになっているか確認
+3. アプリに必要な権限が付与されているか確認（上記参照）
 4. 「共有を停止」してから再度「共有を開始」を試す
 
 #### 接続に失敗する

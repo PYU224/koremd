@@ -507,6 +507,9 @@ const getDeviceStatus = (status: string) => {
   return statusMap[status] || status;
 };
 
+// getDeviceStatus のエイリアス
+const getStatusText = getDeviceStatus;
+
 const getStatusBadgeColor = (status: string) => {
   switch (status) {
     case 'available': return 'success';
@@ -848,4 +851,5 @@ ion-card-content {
     z-index: 999;
   }
 }
+
 </style>
