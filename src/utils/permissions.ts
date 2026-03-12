@@ -4,63 +4,33 @@ import { alertController } from '@ionic/vue';
 /**
  * Wi-Fi Direct に必要な権限をリクエストする
  *
- * @capacitor/geolocation がある場合はそちらを優先。
- * なければ WebView の Geolocation API 経由で Android のシステムダイアログを表示する。
+ * @capacitor/geolocation は GMS (Google Mobile Services) を引き込むため使用不可。
+ * WebView の navigator.geolocation 経由で Android のシステムダイアログを表示する。
  */
 export async function requestWifiDirectPermissions(): Promise<boolean> {
   if (Capacitor.getPlatform() !== 'android') {
     return true;
   }
 
-  try {
-    // @capacitor/geolocation がインストールされていれば使う（推奨）
-    const { Geolocation } = await import('@capacitor/geolocation');
-    const current = await Geolocation.checkPermissions();
-
-    if (current.location === 'granted') {
-      console.log('[Permissions] Already granted');
-      return true;
-    }
-
-    if (current.location === 'denied') {
-      console.warn('[Permissions] Permanently denied');
-      return false;
-    }
-
-    const result = await Geolocation.requestPermissions({ permissions: ['location'] });
-    return result.location === 'granted';
-
-  } catch {
-    // @capacitor/geolocation がない場合は WebView Geolocation で代替
-    console.log('[Permissions] @capacitor/geolocation not found, using WebView Geolocation');
-    return requestViaWebViewGeolocation();
-  }
-}
-
-/**
- * WebView の navigator.geolocation を使ってシステムダイアログを表示する
- * （@capacitor/geolocation 未インストール時の fallback）
- */
-function requestViaWebViewGeolocation(): Promise<boolean> {
   return new Promise((resolve) => {
     if (!navigator.geolocation) {
       console.warn('[Permissions] navigator.geolocation not available');
-      resolve(true); // ブロックしない
+      resolve(true);
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
       () => {
-        console.log('[Permissions] WebView geolocation granted');
+        console.log('[Permissions] Location permission granted');
         resolve(true);
       },
       (err) => {
         if (err.code === err.PERMISSION_DENIED) {
-          console.warn('[Permissions] WebView geolocation denied');
+          console.warn('[Permissions] Location permission denied');
           resolve(false);
         } else {
-          // POSITION_UNAVAILABLE / TIMEOUT はダイアログ自体は出た
-          console.log('[Permissions] WebView geolocation error (not denial):', err.message);
+          // POSITION_UNAVAILABLE / TIMEOUT はダイアログは出た（拒否ではない）
+          console.log('[Permissions] Geolocation error (not denial):', err.message);
           resolve(true);
         }
       },
