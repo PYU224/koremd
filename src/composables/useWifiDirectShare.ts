@@ -153,12 +153,12 @@ export function useWifiDirectShare() {
           if (!hasShownRoleAlert) {
             hasShownRoleAlert = true;
             const modeText = t(`nearbyShare.systemMessages.${actualMode}Mode`);
-            await alertController.create({
+            const roleAlert = await alertController.create({
               header: t('nearbyShare.systemMessages.roleAdjustedTitle'),
               message: t('nearbyShare.systemMessages.roleAdjustedMessage', { mode: modeText }),
               buttons: ['OK']
             });
-            await alert.present();
+            await roleAlert.present();
           }
         } else {
           addLog('success', t('nearbyShare.systemMessages.connectionEstablished'), {
@@ -271,7 +271,7 @@ export function useWifiDirectShare() {
 
         console.log('File added to store:', displayName);
 
-        await alertController.create({
+        const receivedAlert = await alertController.create({
           header: t('nearbyShare.systemMessages.fileReceivedTitle'),
           message: t('nearbyShare.systemMessages.fileReceivedMessage', { 
             fileName: data.fileName, 
@@ -279,16 +279,16 @@ export function useWifiDirectShare() {
           }),
           buttons: ['OK']
         });
-        await alert.present();
+        await receivedAlert.present();
       } catch (err: any) {
         console.error('Failed to process received file:', err);
         addLog('error', t('nearbyShare.systemMessages.fileProcessingFailed', { error: err.message }));
-        await alertController.create({
+        const errorAlert = await alertController.create({
           header: t('nearbyShare.error'),
           message: t('nearbyShare.systemMessages.fileProcessingFailed', { error: err.message }),
           buttons: ['OK']
         });
-        await alert.present();
+        await errorAlert.present();
       }
     });
     listeners.push(fileReceivedListener);
@@ -392,7 +392,7 @@ export function useWifiDirectShare() {
           // @ts-ignore - createGroup is added in updated plugin
           await WifiDirect.createGroup();
           addLog('success', t('nearbyShare.systemMessages.groupOwnerStarted'));
-          debugLogger.addLog('success', 'WiFiDirect', 'Autonomous GO created successfully');
+          debugLogger.addLog('info', 'WiFiDirect', 'Autonomous GO created successfully');
         } catch (err: any) {
           console.warn('Failed to create Autonomous GO, falling back to negotiation:', err);
           debugLogger.addLog('warning', 'WiFiDirect', 'Autonomous GO failed, using negotiation', {
@@ -442,8 +442,9 @@ export function useWifiDirectShare() {
     } catch (err: any) {
       console.error('Failed to start sharing:', err);
       addLog('error', t('nearbyShare.systemMessages.startFailed', { error: err.message }));
-      error.value = err?.message || '共有の開始に失敗しました';
-      progress.value = { status: 'error', message: error.value };
+      const startErrorMessage = err?.message || '共有の開始に失敗しました';
+      error.value = startErrorMessage;
+      progress.value = { status: 'error', message: startErrorMessage };
       
       // ✅ エラー時はisSharingをfalseに戻す
       isSharing.value = false;
@@ -734,8 +735,9 @@ export function useWifiDirectShare() {
     } catch (err: any) {
       console.error('Failed to send markdown:', err);
       addLog('error', t('nearbyShare.systemMessages.sendFailed', { error: err.message }));
-      error.value = err?.message || 'Markdownの送信に失敗しました';
-      progress.value = { status: 'error', message: error.value };
+      const sendErrorMessage = err?.message || 'Markdownの送信に失敗しました';
+      error.value = sendErrorMessage;
+      progress.value = { status: 'error', message: sendErrorMessage };
 
       const alert = await alertController.create({
         header: t('nearbyShare.error'),

@@ -1,5 +1,4 @@
 import { Capacitor } from '@capacitor/core';
-import { alertController } from '@ionic/vue';
 
 /**
  * Wi-Fi Direct に必要な権限をリクエストする

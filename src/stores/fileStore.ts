@@ -20,44 +20,103 @@ export const useFileStore = defineStore('files', () => {
   });
 
   const STORAGE_KEY = 'koremd-files';
+  // ✅ アトミック書き込み用: 本体ファイルと一時ファイルのパスを分離
+  const FILES_PATH = 'files.json';
+  const FILES_TMP_PATH = 'files.json.tmp';
   const isNativePlatform = Capacitor.isNativePlatform();
 
   // ファイル一覧の読み込み
   async function loadFiles() {
-    try {
-      if (isNativePlatform) {
-        const result = await Filesystem.readFile({
-          path: 'files.json',
-          directory: Directory.Data,
-          encoding: Encoding.UTF8,
-        });
-        files.value = JSON.parse(result.data as string);
-      } else {
+    if (!isNativePlatform) {
+      try {
         const data = localStorage.getItem(STORAGE_KEY);
         if (data) {
           files.value = JSON.parse(data);
         }
+      } catch (error) {
+        console.log('No existing files found, starting fresh');
+        files.value = [];
       }
+      return;
+    }
+
+    // ネイティブ環境: まずは正規のファイルを読み込む
+    try {
+      const result = await Filesystem.readFile({
+        path: FILES_PATH,
+        directory: Directory.Data,
+        encoding: Encoding.UTF8,
+      });
+      files.value = JSON.parse(result.data as string);
+      return;
     } catch (error) {
-      console.log('No existing files found, starting fresh');
+      console.log('files.json not found or unreadable, checking recovery file...');
+    }
+
+    // ✅ クラッシュ復旧: 「一時ファイルへの書き込みは成功したが rename する前に
+    // アプリが強制終了した」場合に備え、一時ファイルからの復元を試みる。
+    // (通常のrename成功時は一時ファイルは消費されて存在しないため、
+    //  ここに到達するのは異常終了があった場合のみ)
+    try {
+      const tmpResult = await Filesystem.readFile({
+        path: FILES_TMP_PATH,
+        directory: Directory.Data,
+        encoding: Encoding.UTF8,
+      });
+      files.value = JSON.parse(tmpResult.data as string);
+      console.warn('Recovered files from files.json.tmp (previous save may have been interrupted)');
+      // 復旧できたデータを正規のファイルとして保存し直しておく
+      await saveFiles();
+    } catch (recoveryError) {
+      console.log('No existing files found (including recovery file), starting fresh');
       files.value = [];
     }
   }
 
-  // ファイル一覧の保存
-  async function saveFiles() {
-    try {
-      const data = JSON.stringify(files.value);
-      if (isNativePlatform) {
-        await Filesystem.writeFile({
-          path: 'files.json',
-          data: data,
-          directory: Directory.Data,
-          encoding: Encoding.UTF8,
-        });
-      } else {
+  // ✅ 保存処理を直列化するためのキュー。
+  // createFile/updateFile/deleteFile等から立て続けにsaveFiles()が呼ばれても、
+  // 書き込みが同時並行で走って一時ファイルを壊すことがないようにする。
+  let saveQueue: Promise<void> = Promise.resolve();
+
+  // ファイル一覧の保存（呼び出し側は await してもしなくても良い）
+  function saveFiles(): Promise<void> {
+    saveQueue = saveQueue
+      .catch(() => {
+        // 直前の保存が失敗していてもキューは止めない
+      })
+      .then(() => performSave());
+    return saveQueue;
+  }
+
+  async function performSave() {
+    const data = JSON.stringify(files.value);
+
+    if (!isNativePlatform) {
+      try {
         localStorage.setItem(STORAGE_KEY, data);
+      } catch (error) {
+        console.error('Failed to save files:', error);
       }
+      return;
+    }
+
+    // ✅ アトミック書き込み: 一時ファイルに書き込んでから rename で本体に反映する。
+    // rename は同一ファイルシステム上ではOSレベルでアトミックに実行されるため、
+    // 途中でアプリが強制終了しても files.json 本体は「直前の正常な状態」のまま
+    // 残り、全ファイル消失には繋がらない。
+    try {
+      await Filesystem.writeFile({
+        path: FILES_TMP_PATH,
+        data,
+        directory: Directory.Data,
+        encoding: Encoding.UTF8,
+      });
+
+      await Filesystem.rename({
+        from: FILES_TMP_PATH,
+        to: FILES_PATH,
+        directory: Directory.Data,
+      });
     } catch (error) {
       console.error('Failed to save files:', error);
     }

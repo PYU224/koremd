@@ -6,6 +6,82 @@ All notable changes to KoreMD (これＭＤ（マジ）？) will be documented i
 
 ---
 
+## v1.1.9 (2026-07-01)
+
+### 🔒 Fixed / 修正
+
+#### Markdownプレビューの無害化（サニタイズ）を追加
+
+- **問題**: 受信/インポートしたMarkdown中に生HTML（`<img onerror="...">`等）が含まれていた場合、無害化されずそのまま`v-html`で描画されており、Wi-Fi Direct受信ファイル・ローカルインポートの両経路からXSSが成立し得た
+- **原因**: `renderMarkdown()`が`marked()`の出力をそのまま返しており、サニタイズ処理が存在しなかった
+- **修正内容**:
+  - `dompurify`を導入
+  - `renderMarkdown()`の戻り値を`DOMPurify.sanitize()`に通してから返すように変更
+- **効果**:
+  - ✅ `onerror`/`onload`属性、`javascript:`リンク等の危険な要素を除去
+  - ✅ 太字・リスト・シンタックスハイライト用の`class`属性など通常のMarkdown表示には影響なし（実際の悪意あるペイロードで前後比較検証済み）
+
+**影響範囲**: `src/utils/markdown.ts`, `package.json`（dompurify追加）
+
+#### ファイル保存をアトミック化（強制終了時の全ファイル消失リスクを解消）
+
+- **問題**: `files.json`に毎回直接上書きしていたため、書き込み中にアプリが強制終了すると保存中のファイル1件だけでなく、保存済みの全ファイルが破損・消失する可能性があった
+- **原因**: 一時ファイルを経由しない直接上書き方式で、かつ書き込みが並行して走ることを防ぐ仕組みもなかった
+- **修正内容**:
+  - `files.json.tmp`に書き込んでから`Filesystem.rename()`で本体に反映するアトミック書き込みに変更
+  - `createFile`/`updateFile`/`deleteFile`等から連続で保存が呼ばれても競合しないよう、保存処理をキューで直列化
+  - `files.json`が読めない場合に`files.json.tmp`からの復旧を試みるフォールバックを追加
+- **効果**:
+  - ✅ 保存の途中でアプリが強制終了しても、`files.json`本体は直前の正常な状態のまま残る
+  - ✅ 復旧不能な全ファイル消失のリスクを解消
+
+**影響範囲**: `src/stores/fileStore.ts`
+
+#### `alertController.create()`の戻り値未取得による実行時エラーの可能性を修正
+
+- **問題**: 役割切り替え通知・ファイル受信完了通知・ファイル受信エラー通知の3箇所で、`alertController.create()`の戻り値を変数に代入せず、直後に`alert.present()`を呼んでいた。この`alert`はグローバルの`window.alert`関数を指してしまっており、`.present`メソッドが存在しないため呼び出された瞬間に例外が発生する状態だった
+- **原因**: `await alertController.create({...})`の戻り値を受け取らずに次の行で`alert`という変数名を参照していた（ローカルスコープに同名の変数がないため`window.alert`にフォールバックしていた）
+- **修正内容**: 3箇所それぞれで戻り値を`roleAlert`/`receivedAlert`/`errorAlert`という変数に格納し、その変数に対して`.present()`を呼ぶように修正
+- **効果**: ✅ 役割切り替え時・ファイル受信完了時・ファイル受信失敗時のアラート表示で例外が発生しなくなった
+
+**影響範囲**: `src/composables/useWifiDirectShare.ts`
+
+#### デバッグログに存在しないログレベル`'success'`を渡していた箇所を修正
+
+- **問題**: `debugLogger.addLog('success', 'WiFiDirect', 'Autonomous GO created successfully')`という呼び出しが1箇所あったが、`useDebugLogger.ts`側の`LogEntry['level']`型には`'debug' | 'info' | 'warning' | 'error'`しか定義されておらず、`'success'`は含まれていなかった。実行時はログの絵文字表示が`undefined`になるだけで済んでいたが、型としては不整合だった
+- **修正内容**: `'info'`に変更（ローカルの`addLog()`ラッパーが行っている`success → info`のマッピングと整合させた）
+
+**影響範囲**: `src/composables/useWifiDirectShare.ts`
+
+#### `error.value`（`string | null`）を`progress.value.message`（`string`）に渡す際の型不整合を修正
+
+- **問題**: `startSharing`/`sendMarkdown`のエラーハンドリングで、`error.value = err?.message || '...'`で代入した直後の値をそのまま`progress.value.message`に渡していたが、`error`が`Ref<string | null>`型のためTypeScriptの型チェックが通らなかった
+- **修正内容**: エラーメッセージをローカル変数（`startErrorMessage`/`sendErrorMessage`）に一度だけ格納し、`error.value`と`progress.value.message`の両方にそれを使うよう整理
+
+**影響範囲**: `src/composables/useWifiDirectShare.ts`
+
+#### `Intl.DateTimeFormatOptions`の`fractionalSecondDigits`が型エラーになっていた問題を修正
+
+- **問題**: `useDebugLogger.ts`で使用している`fractionalSecondDigits`オプションの型定義が、`tsconfig.json`の`lib`設定（`ES2020`まで）に含まれておらず型エラーになっていた
+- **原因**: `fractionalSecondDigits`はTypeScriptの`lib.es2021.intl.d.ts`で定義されており、`ES2021.Intl`が`lib`に含まれていなかった
+- **修正内容**: `tsconfig.json`の`lib`に`"ES2021.Intl"`を追加
+
+**影響範囲**: `tsconfig.json`
+
+#### 未使用importの削除
+
+- `src/utils/permissions.ts`で未使用だった`alertController`のimportを削除
+
+**影響範囲**: `src/utils/permissions.ts`
+
+---
+
+**検証**: `npx vue-tsc --noEmit` および `npm run build` がいずれも0エラーで完了することを確認済み。
+
+**Note**: `package.json`のバージョン表記（`1.1.8.3`）および`SettingsView.vue`の表示バージョンは今回更新していません。リリースのタイミングで別途更新してください。
+
+---
+
 ## v1.1.8 (2026-03-10)
 
 ### ✨ Improved / 改善
