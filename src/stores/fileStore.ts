@@ -125,7 +125,7 @@ export const useFileStore = defineStore('files', () => {
   // 新規ファイル作成
   function createFile(name: string = 'Untitled.md') {
     const newFile: MarkdownFile = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       name,
       content: '',
       createdAt: Date.now(),
@@ -219,7 +219,7 @@ export const useFileStore = defineStore('files', () => {
   // ファイルのインポート
   function importFile(name: string, content: string) {
     const newFile: MarkdownFile = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       name,
       content,
       createdAt: Date.now(),

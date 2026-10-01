@@ -2,7 +2,7 @@
   <div class="markdown-editor">
     <textarea
       ref="textareaRef"
-      v-model="localContent"
+      :value="localContent"
       @input="handleInput"
       @compositionstart="handleCompositionStart"
       @compositionend="handleCompositionEnd"
@@ -59,13 +59,15 @@ function handleCompositionStart() {
 }
 
 // ✅ IME変換終了時の処理（追加）
-function handleCompositionEnd() {
+function handleCompositionEnd(event: CompositionEvent) {
+  localContent.value = (event.target as HTMLTextAreaElement).value;
   isComposing.value = false;
   // 変換確定後に必ず値を更新
   emit('update:modelValue', localContent.value);
 }
 
-function handleInput() {
+function handleInput(event: Event) {
+  localContent.value = (event.target as HTMLTextAreaElement).value;
   // ✅ IME変換中は値を更新しない（修正）
   if (!isComposing.value) {
     emit('update:modelValue', localContent.value);
