@@ -1,0 +1,3 @@
+Clearer spacing between line breaks and paragraphs.
+Fixed exporting recent edits, refreshing search results, IME composition, and saving when leaving the editor.
+Improved preview fonts and text wrapping, and prevented duplicate file IDs.
