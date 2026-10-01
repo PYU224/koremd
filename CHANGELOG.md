@@ -6,6 +6,22 @@ All notable changes to KoreMD (これＭＤ（マジ）？) will be documented i
 
 ---
 
+## v1.1.10 (2026-10-01)
+
+Android versionCode: **19**
+
+### Fixed / 修正・改善
+
+- Distinguish line breaks from paragraphs with wider paragraph spacing. / 改行と段落の区切りを余白の違いで識別しやすくしました。
+- Apply the selected preview font and wrap long text. / プレビューのフォント設定と長い文字列の折り返しを改善しました。
+- Export the latest text and filename, including pending edits. / 編集中の最新の本文と名前をエクスポートするよう修正しました。
+- Refresh search matches after edits. / 編集時に検索結果の件数と位置を更新するよう修正しました。
+- Read the committed IME value and save when leaving cached Ionic pages. / IME確定処理とIonic画面離脱時の保存を修正しました。
+- Prevent file ID collisions and remove delayed file switching. / ファイルIDの重複と切り替え時の遅延処理を改善しました。
+- Fix the plugin build path and add eight regression tests. / プラグインのビルドパスを修正し、8件の回帰テストを追加しました。
+
+---
+
 ## v1.1.9 (2026-07-01)
 
 ### 🔒 Fixed / 修正
