@@ -10,10 +10,11 @@
     "preview": "vite preview",
     "ionic:serve": "vite --host=0.0.0.0",
     "ionic:build": "vite build",
-    "build:plugin": "cd ../wifi-direct-plugin && npm run build && cd ../koremd-app",
+    "build:plugin": "npm --prefix wifi-direct-plugin run build",
     "build:all": "npm run build:plugin && npm run build",
     "dev:android": "npm run build:all && npx cap sync android && npx cap open android",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "test": "vitest run"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.1",
@@ -44,13 +45,16 @@
     "@vitejs/plugin-vue": "^6.0.3",
     "@vue/cli-service": "5.0.9",
     "@vue/eslint-config-typescript": "^14.6.0",
+    "@vue/test-utils": "^2.5.1",
     "@vue/tsconfig": "^0.8.1",
     "eslint": "^9.39.2",
     "eslint-plugin-vue": "^10.7.0",
+    "jsdom": "^26.1.0",
     "npm-run-all2": "^8.0.4",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vite-tsconfig-paths": "^6.0.4",
+    "vitest": "^3.2.7",
     "vue-tsc": "^3.2.2"
   }
 }

@@ -30,7 +30,9 @@ const renderedContent = computed(() => renderMarkdown(props.content));
   width: 100%;
   padding: 16px;
   overflow-y: auto;
+  /* br stays within a line box; paragraphs get a separate block gap. */
   line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 
 .markdown-preview :deep(h1) {
@@ -72,7 +74,20 @@ const renderedContent = computed(() => renderMarkdown(props.content));
 }
 
 .markdown-preview :deep(p) {
-  margin: 1em 0;
+  margin: 0 0 1.5em;
+}
+
+/* The app-wide font rule otherwise overrides the selected preview font. */
+.markdown-preview :deep(*) {
+  font-family: inherit;
+}
+
+.markdown-preview :deep(> :first-child) {
+  margin-top: 0;
+}
+
+.markdown-preview :deep(> :last-child) {
+  margin-bottom: 0;
 }
 
 .markdown-preview :deep(code) {
@@ -87,7 +102,12 @@ const renderedContent = computed(() => renderMarkdown(props.content));
   padding: 12px;
   border-radius: 6px;
   overflow-x: auto;
+  overflow-wrap: normal;
   margin: 1em 0;
+}
+
+.markdown-preview :deep(code *) {
+  font-family: inherit;
 }
 
 .markdown-preview :deep(pre code) {

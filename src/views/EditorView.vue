@@ -113,7 +113,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount, onUnmounted, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import {
@@ -129,6 +129,8 @@ import {
   IonFabButton,
   IonModal,
   alertController,
+  onIonViewWillLeave,
+  onIonViewWillEnter,
 } from '@ionic/vue';
 import {
   arrowBackOutline,
@@ -193,6 +195,7 @@ const wordCount = computed(() => getWordCount(content.value));
 
 // 自動保存用のタイマー
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
+let searchTimer: ReturnType<typeof setTimeout> | null = null;
 // ✅ 追加: ページ離脱中フラグ
 let isNavigating = false;
 
@@ -223,10 +226,25 @@ onBeforeUnmount(() => {
   saveCurrentFile();
   
   // ✅ currentFileをクリア
-  fileStore.clearCurrentFile();
+  if (fileStore.currentFile?.id === currentEditingFileId.value) {
+    fileStore.clearCurrentFile();
+  }
+});
+
+// Ionic caches pages, so leaving does not necessarily unmount the editor.
+onIonViewWillLeave(() => {
+  isNavigating = true;
+  if (saveTimer) clearTimeout(saveTimer);
+  if (searchTimer) clearTimeout(searchTimer);
+  saveCurrentFile();
+});
+
+onIonViewWillEnter(() => {
+  isNavigating = false;
 });
 
 onUnmounted(() => {
+  if (searchTimer) clearTimeout(searchTimer);
   console.log('EditorView: onUnmounted');
   if (saveTimer) {
     clearTimeout(saveTimer);
@@ -258,10 +276,14 @@ watch(content, () => {
   
   // ✅ 検索中の場合のみ、検索結果を更新（デバウンス付き）
   if (isSearching.value && searchKeyword.value) {
-    // 検索結果更新もデバウンス
-    setTimeout(() => {
+    // Cancel the previous search refresh when typing continues.
+    if (searchTimer) clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
       if (isSearching.value && searchKeyword.value) {
-        findAllMatches(searchKeyword.value);
+        searchMatches.value = findAllMatches(searchKeyword.value);
+        currentMatchIndex.value = Math.min(
+          currentMatchIndex.value, Math.max(0, searchMatches.value.length - 1)
+        );
       }
     }, 300);
   }
@@ -271,6 +293,7 @@ watch(content, () => {
 watch(() => route.params.id, (newId, oldId) => {
   if (newId && newId !== oldId && newId !== currentEditingFileId.value) {
     console.log('Route changed from', oldId, 'to', newId);
+    clearSearch();
     // 別のファイルに遷移した場合
     isNavigating = true;
     
@@ -281,16 +304,14 @@ watch(() => route.params.id, (newId, oldId) => {
     saveCurrentFile();
     
     // 新しいファイルをロード
-    setTimeout(() => {
-      fileStore.selectFile(newId as string);
-      if (fileStore.currentFile) {
-        content.value = fileStore.currentFile.content;
-        fileName.value = fileStore.currentFile.name;
-        currentEditingFileId.value = fileStore.currentFile.id;
-        console.log('Switched to file:', currentEditingFileId.value);
-      }
-      isNavigating = false;
-    }, 100);
+    fileStore.selectFile(newId as string);
+    if (fileStore.currentFile) {
+      content.value = fileStore.currentFile.content;
+      fileName.value = fileStore.currentFile.name;
+      currentEditingFileId.value = fileStore.currentFile.id;
+      console.log('Switched to file:', currentEditingFileId.value);
+    }
+    isNavigating = false;
   }
 });
 
@@ -334,7 +355,12 @@ function goBack() {
 
 function exportCurrentFile() {
   if (fileStore.currentFile) {
-    fileStore.exportFile(fileStore.currentFile);
+    // currentFile is a selection snapshot; include edits before autosave fires.
+    fileStore.exportFile({
+      ...fileStore.currentFile,
+      content: content.value,
+      name: fileName.value || fileStore.currentFile.name,
+    });
   }
 }
 
@@ -386,6 +412,7 @@ async function openSearchModal() {
 }
 
 function findAllMatches(keyword: string): number[] {
+  if (!keyword) return [];
   const lowerContent = content.value.toLowerCase();
   const lowerKeyword = keyword.toLowerCase();
   const matches: number[] = [];
@@ -425,32 +452,22 @@ function performSearch(keyword: string) {
   }
 }
 
-// ✅ jumpToMatchの改善 - より慎重なカーソル移動
-function jumpToMatch(index: number) {
-  if (searchMatches.value.length === 0) return;
-  
+// Wait only for the mode/DOM update, and discard stale navigation requests.
+async function jumpToMatch(index: number) {
+  if (index < 0 || index >= searchMatches.value.length) return;
   currentMatchIndex.value = index;
+  await nextTick();
+  if (!isSearching.value || currentMatchIndex.value !== index) return;
   const matchIndex = searchMatches.value[index];
-  
-  // ✅ より長い遅延を設定してIME入力との競合を回避
-  setTimeout(() => {
-    const textarea = editorRef.value?.$el?.querySelector('textarea');
-    if (textarea) {
-      textarea.focus();
-      
-      // ✅ さらに遅延を追加してカーソル位置設定
-      setTimeout(() => {
-        if (textarea) {
-          textarea.setSelectionRange(matchIndex, matchIndex + searchKeyword.value.length);
-          
-          // スクロール位置の調整
-          const lineHeight = 24;
-          const lines = content.value.substring(0, matchIndex).split('\n').length;
-          textarea.scrollTop = lines * lineHeight - textarea.clientHeight / 2;
-        }
-      }, 50);
-    }
-  }, 100);
+  if (matchIndex === undefined) return;
+  const textarea = editorRef.value?.$el?.querySelector('textarea');
+  if (textarea) {
+    textarea.focus();
+    textarea.setSelectionRange(matchIndex, matchIndex + searchKeyword.value.length);
+    const lineHeight = parseFloat(getComputedStyle(textarea).lineHeight) || 24;
+    const lines = content.value.substring(0, matchIndex).split('\n').length;
+    textarea.scrollTop = (lines - 1) * lineHeight - textarea.clientHeight / 2;
+  }
 }
 
 function nextMatch() {
@@ -486,6 +503,8 @@ async function showNoResults() {
 }
 
 function clearSearch() {
+  if (searchTimer) clearTimeout(searchTimer);
+  searchTimer = null;
   searchKeyword.value = '';
   isSearching.value = false;
   searchMatches.value = [];
